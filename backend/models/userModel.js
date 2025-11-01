@@ -27,6 +27,7 @@ const userSchema = mongoose.Schema({
           type: String,
           enum: ['email', 'google', 'github'],
           required: true,
+          default: 'email'
         },
         providerId: {
           type: String, // googleId / githubId / empty if email login
