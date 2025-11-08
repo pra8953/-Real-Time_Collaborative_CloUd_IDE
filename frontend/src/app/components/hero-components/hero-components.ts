@@ -133,7 +133,8 @@ export class HeroComponents implements OnInit {
       { type: 'curly', content: '{{ }}', top: '80%', left: '15%', delay: 4 },
       { type: 'angle', content: '< />', top: '20%', right: '15%', delay: 5 },
       { type: 'code', content: ';', top: '85%', right: '5%', delay: 6 },
-      { type: 'array', content: '[]', top: '35%', left: '12%', delay: 7 }
+      { type: 'array', content: '[]', top: '35%', left: '12%', delay: 7 },
+      { type: 'curly', content: '{{ }}', top: '80%', left: '15%', delay: 4 },
     ];
   }
 
