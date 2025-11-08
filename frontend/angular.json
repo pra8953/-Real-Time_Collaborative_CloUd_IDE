@@ -25,8 +25,7 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+              "src/styles.css"
             ]
           },
           "configurations": {
@@ -91,9 +90,6 @@
     }
   },
   "cli": {
-
     "analytics": false
-    
-
   }
 }
