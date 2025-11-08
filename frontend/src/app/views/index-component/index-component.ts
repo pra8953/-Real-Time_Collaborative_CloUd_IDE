@@ -4,10 +4,11 @@ import { FooterComponent } from "../../components/footer-component/footer-compon
 import { HeroComponents } from "../../components/hero-components/hero-components";
 import { MainComponent } from "../../components/main-component/main-component";
 import { Main1Component } from "../../components/main1-component/main1-component";
+import { MindsComponent } from "../../components/minds-component/minds-component";
 
 @Component({
   selector: 'app-index-component',
-  imports: [NavbarComponent, FooterComponent, HeroComponents, MainComponent, Main1Component],
+  imports: [NavbarComponent, FooterComponent, HeroComponents, Main1Component, MindsComponent],
   templateUrl: './index-component.html',
   styleUrl: './index-component.css',
 })
