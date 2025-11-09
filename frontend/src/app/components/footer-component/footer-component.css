@@ -1,0 +1,230 @@
+/* Background Elements */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(rgba(168, 85, 247, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 30s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(50px, 50px) rotate(0.3deg); }
+}
+
+/* Gradient Overlay */
+.bg-gradient-overlay {
+  background: linear-gradient(45deg,
+    rgba(139, 92, 246, 0.02) 0%,
+    rgba(236, 72, 153, 0.01) 25%,
+    rgba(99, 102, 241, 0.02) 50%,
+    rgba(168, 85, 247, 0.01) 75%,
+    rgba(236, 72, 153, 0.02) 100%);
+  animation: overlayShift 15s ease-in-out infinite;
+}
+
+@keyframes overlayShift {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Floating Orbs */
+.floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: orbFloat 15s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+.orb-1 {
+  top: 20%;
+  left: 10%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, 
+    rgba(168, 85, 247, 0.3) 0%,
+    rgba(139, 92, 246, 0.2) 30%,
+    transparent 70%);
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  bottom: 30%;
+  right: 15%;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle,
+    rgba(236, 72, 153, 0.25) 0%,
+    rgba(219, 39, 119, 0.15) 40%,
+    transparent 70%);
+  animation-delay: 5s;
+}
+
+.orb-3 {
+  top: 60%;
+  left: 80%;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle,
+    rgba(99, 102, 241, 0.2) 0%,
+    rgba(79, 70, 229, 0.1) 50%,
+    transparent 70%);
+  animation-delay: 10s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1) rotate(0deg); 
+    opacity: 0.4;
+  }
+  33% { 
+    transform: translate(30px, -15px) scale(1.05) rotate(120deg); 
+    opacity: 0.6;
+  }
+  66% { 
+    transform: translate(-20px, 20px) scale(0.95) rotate(240deg); 
+    opacity: 0.3;
+  }
+}
+
+/* Particles */
+.particles-container {
+  pointer-events: none;
+}
+
+.particle {
+  background: linear-gradient(45deg, #a855f7, #ec4899);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+  animation: particleFloat 12s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-80px) scale(1.1) rotate(180deg);
+    opacity: 0.5;
+  }
+  90% {
+    opacity: 0.2;
+  }
+}
+
+/* Social Icons */
+.social-icon {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.social-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.social-icon:hover {
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);
+  border-color: transparent;
+}
+
+.social-icon:hover .social-bg {
+  opacity: 1;
+}
+
+/* Logo Animation */
+.logo-container {
+  position: relative;
+}
+
+.logo-container::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.logo-container:hover::after {
+  opacity: 1;
+}
+
+/* Newsletter Form Animation */
+.newsletter-form input:focus {
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+/* Link Hover Effects */
+a:hover {
+  text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+}
+
+/* Scroll to Top Button Animation */
+.fixed button {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .floating-orb {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .bg-grid-pattern {
+    animation-duration: 40s;
+  }
+  
+  .particles-container {
+    display: none;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid-pattern,
+  .bg-gradient-overlay,
+  .floating-orb,
+  .particle,
+  .social-icon,
+  .logo-container::after {
+    animation: none;
+    transition: none;
+  }
+}
