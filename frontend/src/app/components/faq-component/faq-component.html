@@ -1,0 +1,115 @@
+<div class="faq-section relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-950 py-20 px-4">
+  <!-- Background Elements -->
+  <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
+  
+  <!-- Animated Gradient Overlay -->
+  <div class="absolute inset-0 bg-gradient-overlay"></div>
+  
+  <!-- Floating Orbs -->
+  <div class="floating-orb orb-1"></div>
+  <div class="floating-orb orb-2"></div>
+  <div class="floating-orb orb-3"></div>
+  
+  <!-- Animated Particles -->
+  <div class="particles-container absolute inset-0">
+    <div *ngFor="let particle of particles" 
+         class="particle absolute rounded-full"
+         [style]="getParticleStyle(particle)"></div>
+  </div>
+
+  <div class="container mx-auto relative z-10">
+    <!-- Section Header -->
+    <div class="text-center mb-16">
+      <div class="section-badge inline-flex items-center gap-2 mb-6">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8.228 9C8.777 7.835 9.758 7 11 7C12.657 7 14 8.343 14 10C14 11.657 12.657 13 11 13H10M12 17H11V16M21 12C21 16.971 16.971 21 12 21C7.029 21 3 16.971 3 12C3 7.029 7.029 3 12 3C16.971 3 21 7.029 21 12Z"/>
+        </svg>
+        Frequently Asked Questions
+      </div>
+      
+      <h2 class="section-title">
+        Your Questions <span class="gradient-text">Answered</span>
+      </h2>
+      <p class="section-subtitle">
+        Everything you need to know about Leeco and how it transforms your career journey
+      </p>
+      
+      <!-- Animated Divider -->
+      <div class="flex justify-center mt-8">
+        <div class="animated-divider"></div>
+      </div>
+    </div>
+
+    <!-- FAQ Items -->
+    <div class="faq-items" @listAnimation>
+      <div *ngFor="let faq of faqs; let i = index" 
+           class="faq-card group" 
+           [class.active]="faq.open"
+           (click)="toggle(i)"
+           [@pulseGlow]="faq.open">
+        
+        <!-- Card Glow Effect -->
+        <div class="card-glow"></div>
+        
+        <!-- Question Row -->
+        <div class="faq-question">
+          <div class="question-content">
+            <div class="icon-badge">
+              <span class="icon-text">{{ faq.icon }}</span>
+            </div>
+            <div class="text-content">
+              <h3 class="question-text">{{ faq.question }}</h3>
+            </div>
+          </div>
+          
+          <div class="action-indicator">
+            <div class="indicator-dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <div class="chevron-container" [@rotateChevron]="faq.open">
+              <svg class="chevron-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Answer Section -->
+        <div *ngIf="faq.open" 
+             @expandCollapse
+             class="faq-answer">
+          <div class="answer-content">
+            <div class="answer-decoration">
+              <div class="answer-line"></div>
+              <div class="answer-dot"></div>
+            </div>
+            <p class="answer-text">{{ faq.answer }}</p>
+          </div>
+          
+          <!-- Answer Actions -->
+          <div class="answer-actions">
+            <button class="action-btn helpful-btn">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+              </svg>
+              Helpful
+            </button>
+            <button class="action-btn share-btn">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+              </svg>
+              Share
+            </button>
+          </div>
+        </div>
+
+        <!-- Hover Glow Effect -->
+        <div class="hover-glow"></div>
+      </div>
+    </div>
+
+    
+  </div>
+</div>

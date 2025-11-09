@@ -2,11 +2,12 @@ import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { trigger, transition, style, animate, keyframes, query, stagger } from '@angular/animations';
+import { Main1Component } from "../main1-component/main1-component";
 
 @Component({
   selector: 'app-hero-components',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, Main1Component],
   templateUrl: './hero-components.html',
   styleUrls: ['./hero-components.css'],
   animations: [
