@@ -2,22 +2,22 @@
   class="signup-section text-white relative overflow-hidden min-h-screen flex items-center justify-center"
 >
   <!-- Main Background -->
-  <div class="absolute inset-0 bg-linear-to-br from-gray-900 via-gray-900 to-black"></div>
+  <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-black"></div>
 
   <!-- Color Overlay -->
   <div
-    class="absolute inset-0 bg-linear-to-r from-pink-900/10 via-purple-900/15 to-violet-900/10"
+    class="absolute inset-0 bg-gradient-to-r from-pink-900/10 via-purple-900/15 to-violet-900/10"
   ></div>
 
   <!-- Animated Grid Background -->
-  <div class="absolute inset-0 bg-grid-pattern opacity-30"></div>
+  <div class="absolute inset-0 opacity-30 bg-[linear-gradient(#ffffff12_1px,transparent_1px),linear-gradient(90deg,#ffffff12_1px,transparent_1px)] bg-[size:50px_50px]"></div>
 
   <!-- Floating Particles -->
   <div class="particles-container absolute inset-0" [@particleAnimation]="currentParticleState">
     <div
       *ngFor="let particle of particles"
-      class="particle absolute bg-linear-to-r from-pink-700 to-purple-700 rounded-full opacity-40"
-      [style]="getParticleStyle(particle)"
+      class="particle absolute bg-gradient-to-r from-pink-700 to-purple-700 rounded-full opacity-40"
+      [ngStyle]="getParticleStyle(particle)"
     ></div>
   </div>
 
@@ -30,8 +30,8 @@
   <div class="floating-elements-container" [@floatAnimation]>
     <div
       *ngFor="let element of floatingElements"
-      class="floating-element"
-      [style]="getFloatingElementStyle(element)"
+      class="floating-element absolute text-2xl opacity-20 text-white font-mono pointer-events-none"
+      [ngStyle]="getFloatingElementStyle(element)"
       [class]="element.type"
     >
       {{ element.content }}
@@ -47,15 +47,15 @@
 
   <div class="relative z-10 container mx-auto px-4 w-full max-w-md py-10">
     <!-- Signup Card -->
-    <div class="signup-card" [@cardAnimation]>
+    <div class="signup-card bg-gray-800/50 backdrop-blur-md rounded-2xl border border-white/10 p-8 shadow-2xl" [@cardAnimation]>
       <!-- Header -->
       <div class="text-center mb-8">
         <div class="logo-container mb-6">
-          <h1 class="logo-text text-2xl font-bold flex items-center">
+          <h1 class="logo-text text-2xl font-bold flex items-center justify-center">
             <span class="logo-icon text-3xl">⚡</span>
             <span class="text-gray-300"> Code </span>
             <span
-              class="bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent animate-gradient"
+              class="bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent animate-pulse"
               >Collab</span
             >
           </h1>
@@ -65,10 +65,10 @@
       </div>
 
       <!-- Signup Form -->
-      <form (ngSubmit)="onSignup()" class="space-y-6">
+      <form [formGroup]="signupData" class="space-y-6">
         <!-- Name Field -->
         <div class="form-group">
-          <label for="name" class="form-label">
+          <label for="name" class="form-label flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
             <span class="label-icon">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -79,25 +79,26 @@
                 />
               </svg>
             </span>
-            Full Name
+            <span>Full Name</span>
           </label>
-          <div class="input-container">
+          <div class="input-container relative">
             <input
               type="text"
               id="name"
-              [(ngModel)]="name"
-              name="name"
-              required
-              class="form-input"
+              formControlName="name"
+              class="form-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
               placeholder="John Doe"
             />
-            <div class="input-glow"></div>
+            <div class="input-glow absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/20 to-purple-500/20 opacity-0 transition-opacity"></div>
+          </div>
+          <div *ngIf="getFieldError('name')" class="error-message text-red-400 text-xs mt-1">
+            {{ getFieldError('name') }}
           </div>
         </div>
 
         <!-- Email Field -->
         <div class="form-group">
-          <label for="email" class="form-label">
+          <label for="email" class="form-label flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
             <span class="label-icon">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -108,40 +109,42 @@
                 />
               </svg>
             </span>
-            Email Address
+            <span>Email Address</span>
           </label>
-          <div class="input-container">
+          <div class="input-container relative">
             <input
               type="email"
               id="email"
-              [(ngModel)]="email"
-              name="email"
-              required
-              class="form-input"
+              formControlName="email"
+              class="form-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
               placeholder="developer@example.com"
             />
-            <div class="input-glow"></div>
+            <div class="input-glow absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/20 to-purple-500/20 opacity-0 transition-opacity"></div>
+          </div>
+          <div *ngIf="getFieldError('email')" class="error-message text-red-400 text-xs mt-1">
+            {{ getFieldError('email') }}
           </div>
         </div>
 
         <!-- Password Field -->
         <div class="form-group">
-          <label for="password" class="form-label">
+          <label for="password" class="form-label flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
             <span class="label-icon">🔒</span>
-            Password
+            <span>Password</span>
           </label>
-          <div class="input-container">
+          <div class="input-container relative">
             <input
               type="password"
               id="password"
-              [(ngModel)]="password"
-              name="password"
-              required
-              class="form-input"
+              formControlName="password"
+              class="form-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
               placeholder="••••••••"
               minlength="6"
             />
-            <div class="input-glow"></div>
+            <div class="input-glow absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/20 to-purple-500/20 opacity-0 transition-opacity"></div>
+          </div>
+          <div *ngIf="getFieldError('password')" class="error-message text-red-400 text-xs mt-1">
+            {{ getFieldError('password') }}
           </div>
           <p class="password-hint text-xs text-gray-400 mt-1">
             Password must be at least 6 characters long
@@ -150,21 +153,20 @@
 
         <!-- Confirm Password Field -->
         <div class="form-group">
-          <label for="confirmPassword" class="form-label">
+          <label for="confirmPassword" class="form-label flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
             <span class="label-icon">✅</span>
-            Confirm Password
+            <span>Confirm Password</span>
           </label>
-          <div class="input-container">
+          <div class="input-container relative">
             <input
               type="password"
               id="confirmPassword"
               [(ngModel)]="confirmPassword"
-              name="confirmPassword"
-              required
-              class="form-input"
+              [ngModelOptions]="{standalone: true}"
+              class="form-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
               placeholder="••••••••"
             />
-            <div class="input-glow"></div>
+            <div class="input-glow absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/20 to-purple-500/20 opacity-0 transition-opacity"></div>
           </div>
           <div *ngIf="passwordMismatch" class="error-message text-red-400 text-xs mt-1">
             Passwords do not match
@@ -176,17 +178,17 @@
           <input
             type="checkbox"
             [(ngModel)]="acceptTerms"
-            name="acceptTerms"
+            [ngModelOptions]="{standalone: true}"
             id="acceptTerms"
-            class="checkbox mt-1"
+            class="checkbox mt-1 w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
           />
           <label for="acceptTerms" class="terms-label text-sm text-gray-300">
             I agree to the
-            <button type="button" (click)="onTermsClick()" class="terms-link">
+            <button type="button" class="terms-link text-purple-400 hover:text-purple-300 underline transition-colors">
               Terms of Service
             </button>
             and
-            <button type="button" (click)="onPrivacyClick()" class="terms-link">
+            <button type="button" class="terms-link text-purple-400 hover:text-purple-300 underline transition-colors">
               Privacy Policy
             </button>
           </label>
@@ -194,12 +196,12 @@
 
         <!-- Signup Button -->
         <button
-          type="submit"
-          class="signup-btn primary-btn group w-full cursor-pointer"
-          [disabled]="isLoading || !acceptTerms || passwordMismatch"
-          [class.loading]="isLoading"
+          type="button"
+          (click)="onSignup()"
+          class="signup-btn primary-btn group w-full px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 hover:from-pink-700 hover:to-purple-700 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+          [disabled]="!formValid"
         >
-          <span class="btn-spinner" *ngIf="isLoading"></span>
+          <span class="btn-spinner w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" *ngIf="isLoading"></span>
           <span class="btn-icon" *ngIf="!isLoading">🚀</span>
           <span class="btn-text">
             {{ isLoading ? 'Creating Account...' : 'Start Coding' }}
@@ -209,15 +211,18 @@
       </form>
 
       <!-- Divider -->
-      <div class="divider">
-        <span class="divider-text">or sign up with</span>
+      <div class="divider my-6 flex items-center">
+        <div class="flex-grow border-t border-gray-600"></div>
+        <span class="divider-text mx-4 text-gray-400 text-sm">or sign up with</span>
+        <div class="flex-grow border-t border-gray-600"></div>
       </div>
 
       <!-- Social Signup Buttons -->
       <div class="social-buttons grid grid-cols-2 gap-3">
         <button
-          (click)="onGoogleSignup()"
-          class="social-btn google-btn group cursor-pointer"
+          type="button"
+          (click)="onSocialSignup('Google')"
+          class="social-btn google-btn group w-full px-4 py-3 bg-white text-gray-700 font-medium rounded-lg transition-all duration-300 hover:bg-gray-100 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           [disabled]="isLoading"
         >
           <svg class="social-icon w-5 h-5" viewBox="0 0 24 24">
@@ -242,8 +247,9 @@
         </button>
 
         <button
-          (click)="onGithubSignup()"
-          class="social-btn github-btn group cursor-pointer"
+          type="button"
+          (click)="onSocialSignup('GitHub')"
+          class="social-btn github-btn group w-full px-4 py-3 bg-gray-800 text-white font-medium rounded-lg border border-gray-600 transition-all duration-300 hover:bg-gray-700 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           [disabled]="isLoading"
         >
           <svg class="social-icon w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -259,12 +265,12 @@
       <div class="login-section text-center mt-8">
         <p class="login-text text-gray-400">
           Already have an account?
-          <button (click)="onLogin()" class="login-link">Sign in</button>
+          <button (click)="onLogin()" class="login-link text-purple-400 hover:text-purple-300 font-medium transition-colors">Sign in</button>
         </p>
       </div>
 
       <!-- Security Badge -->
-      <div class="security-badge mt-6">
+      <div class="security-badge mt-6 flex items-center justify-center space-x-2 text-sm text-gray-400">
         <span class="security-icon">🛡️</span>
         <span class="security-text">Your data is securely encrypted</span>
       </div>

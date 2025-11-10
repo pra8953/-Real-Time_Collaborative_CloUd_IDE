@@ -38,7 +38,8 @@ export class NavbarComponent implements OnInit {
   selectedLanguage = 'en';
   isLanguageDropdownOpen = false;
   searchQuery = '';
-
+  token = localStorage.getItem('token');
+  
   ngOnInit() {
     // Check for saved theme preference or default to light
     const savedTheme = localStorage.getItem('theme');
@@ -48,6 +49,8 @@ export class NavbarComponent implements OnInit {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    
   }
 
   toggleTheme() {

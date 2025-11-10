@@ -1,7 +1,8 @@
+declare var Toastify: any;
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import {
   trigger,
@@ -12,11 +13,12 @@ import {
   query,
   stagger,
 } from '@angular/animations';
+import { Authservices } from '../../core/services/authservices';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './login-component.html',
   styleUrls: ['./login-component.css'],
   animations: [
@@ -72,8 +74,10 @@ import {
   ],
 })
 export class LoginComponent implements OnInit {
-  email: string = '';
-  password: string = '';
+  userLogin = new FormGroup({
+      email:new FormControl('',[Validators.required, Validators.email]),
+      password:new FormControl('',[Validators.required,Validators.minLength(8)])
+  })
   rememberMe: boolean = false;
   isLoading: boolean = false;
 
@@ -81,7 +85,7 @@ export class LoginComponent implements OnInit {
   floatingElements: any[] = [];
   currentParticleState = 0;
 
-  constructor(private el: ElementRef, private router: Router) {}
+  constructor(private el: ElementRef, private router: Router,private authService:Authservices) {}
 
   ngOnInit() {
     this.generateParticles();
@@ -132,48 +136,64 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-    if (this.email && this.password) {
-      this.isLoading = true;
+  if (this.userLogin.invalid) {
+    // Optionally, mark all fields as touched
+    this.userLogin.markAllAsTouched();
+    return;
+  }
 
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Login attempt with:', { email: this.email, rememberMe: this.rememberMe });
-        this.isLoading = false;
+  const loginData = this.userLogin.value;
+  this.isLoading = true;
 
-        // Here you would typically handle the login logic
-        // For demo purposes, we'll just log and navigate
-        this.router.navigate(['/dashboard']);
-      }, 2000);
+  this.authService.login(loginData).subscribe({
+    next: (result: any) => {
+      this.isLoading = false;
+
+      if (!result.success) {
+        // Show backend error message
+        Toastify({
+          text: "Login failed! " + (result.message || ''),
+          duration: 4000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+        }).showToast();
+        return;
+      }
+
+      // Success
+      localStorage.setItem('token', result.token);
+
+      Toastify({
+        text: "Login successful!",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+      }).showToast();
+
+      this.router.navigateByUrl('/dashboard');
+    },
+    error: (err) => {
+      this.isLoading = false;
+
+      const errorMessage = err.error?.message || 'Something went wrong! Please try again.';
+
+      Toastify({
+        text: "Login failed! " + errorMessage,
+        duration: 4000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+      }).showToast();
+
+      console.error('Login error:', err);
     }
-  }
+  });
+}
 
-  onGoogleLogin() {
-    this.isLoading = true;
-    console.log('Google login initiated');
 
-    // Simulate OAuth flow
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/dashboard']);
-    }, 2000);
-  }
-
-  onGithubLogin() {
-    this.isLoading = true;
-    console.log('GitHub login initiated');
-
-    // Simulate OAuth flow
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/dashboard']);
-    }, 2000);
-  }
-
-  onForgotPassword() {
-    console.log('Forgot password flow initiated');
-    // Implement forgot password logic
-    alert('Password reset feature coming soon!');
-  }
+  
 
   onSignUp() {
     this.router.navigate(['/signup']);

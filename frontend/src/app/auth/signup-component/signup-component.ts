@@ -1,7 +1,9 @@
+
+declare var Toastify: any;
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import {
   trigger,
@@ -12,11 +14,12 @@ import {
   query,
   stagger,
 } from '@angular/animations';
+import { Authservices } from '../../core/services/authservices';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
   templateUrl: './signup-component.html',
   styleUrls: ['./signup-component.css'],
   animations: [
@@ -72,9 +75,12 @@ import {
   ],
 })
 export class SignupComponent implements OnInit {
-  name: string = '';
-  email: string = '';
-  password: string = '';
+  signupData = new FormGroup({
+    name: new FormControl('', [Validators.required, Validators.minLength(2)]),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required, Validators.minLength(6)])
+  });
+
   confirmPassword: string = '';
   acceptTerms: boolean = false;
   isLoading: boolean = false;
@@ -83,18 +89,27 @@ export class SignupComponent implements OnInit {
   floatingElements: any[] = [];
   currentParticleState = 0;
 
-  constructor(private el: ElementRef, private router: Router) {}
+  constructor(private el: ElementRef, private router: Router, private authService: Authservices) {}
 
   ngOnInit() {
     this.generateParticles();
     this.generateFloatingElements();
+    
     setInterval(() => {
       this.currentParticleState++;
     }, 2000);
   }
 
   get passwordMismatch(): boolean {
-    return this.password !== this.confirmPassword && this.confirmPassword.length > 0;
+    const password = this.signupData.get('password')?.value;
+    return password !== this.confirmPassword && this.confirmPassword.length > 0;
+  }
+
+  get formValid(): boolean {
+    return this.signupData.valid && 
+           !this.passwordMismatch && 
+           this.acceptTerms && 
+           !this.isLoading;
   }
 
   generateParticles() {
@@ -138,61 +153,87 @@ export class SignupComponent implements OnInit {
   }
 
   onSignup() {
-    if (this.name && this.email && this.password && this.confirmPassword && this.acceptTerms) {
-      if (this.passwordMismatch) {
-        return;
-      }
+  if (!this.formValid) {
+    this.markFormGroupTouched();
+    return;
+  }
 
-      this.isLoading = true;
+  this.isLoading = true;
+  const data = this.signupData.value;
 
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Signup attempt with:', {
-          name: this.name,
-          email: this.email,
-          acceptTerms: this.acceptTerms,
-        });
-        this.isLoading = false;
+  this.authService.signup(data).subscribe({
+    next: (result: any) => {
+      this.isLoading = false;
 
-        // Here you would typically handle the signup logic
-        // For demo purposes, we'll just log and navigate
+      if (result.success) {
+        localStorage.setItem('token', result.token);
+
+        Toastify({
+          text: result.message || 'Signup successful!',
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+        }).showToast();
+
         this.router.navigate(['/dashboard']);
-      }, 2000);
+      } else {
+        // Show backend error message in toast
+        Toastify({
+          text: result.message || 'Signup failed. Please try again.',
+          duration: 4000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+        }).showToast();
+      }
+    },
+    error: (err) => {
+      this.isLoading = false;
+
+      const errorMessage = err.error?.message || 'Something went wrong! Please try again.';
+
+      Toastify({
+        text: errorMessage,
+        duration: 4000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+      }).showToast();
+
+      console.error('Signup error:', err);
     }
+  });
+}
+
+
+  private markFormGroupTouched() {
+    Object.keys(this.signupData.controls).forEach(key => {
+      const control = this.signupData.get(key);
+      control?.markAsTouched();
+    });
   }
 
-  onGoogleSignup() {
-    this.isLoading = true;
-    console.log('Google signup initiated');
-
-    // Simulate OAuth flow
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/dashboard']);
-    }, 2000);
+  getFieldError(fieldName: string): string {
+    const field = this.signupData.get(fieldName);
+    if (field?.errors && field.touched) {
+      if (field.errors['required']) return `${this.getFieldLabel(fieldName)} is required`;
+      if (field.errors['email']) return 'Please enter a valid email address';
+      if (field.errors['minlength']) {
+        const requiredLength = field.errors['minlength'].requiredLength;
+        return `${this.getFieldLabel(fieldName)} must be at least ${requiredLength} characters`;
+      }
+    }
+    return '';
   }
 
-  onGithubSignup() {
-    this.isLoading = true;
-    console.log('GitHub signup initiated');
-
-    // Simulate OAuth flow
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/dashboard']);
-    }, 2000);
-  }
-
-  onTermsClick() {
-    console.log('Terms of Service clicked');
-    // Implement terms modal or navigation
-    alert('Terms of Service will be displayed here!');
-  }
-
-  onPrivacyClick() {
-    console.log('Privacy Policy clicked');
-    // Implement privacy policy modal or navigation
-    alert('Privacy Policy will be displayed here!');
+  private getFieldLabel(fieldName: string): string {
+    const labels: { [key: string]: string } = {
+      name: 'Full name',
+      email: 'Email',
+      password: 'Password'
+    };
+    return labels[fieldName] || fieldName;
   }
 
   onLogin() {
@@ -201,5 +242,9 @@ export class SignupComponent implements OnInit {
 
   onBackToHome() {
     this.router.navigate(['/']);
+  }
+
+  onSocialSignup(provider: string) {
+    alert(`${provider} signup will be implemented soon!`);
   }
 }
