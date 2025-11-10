@@ -1,5 +1,18 @@
+<!-- Mobile Toggle Button -->
+<button *ngIf="!isMessagesOpen" (click)="toggleMessages()"
+  class="messages-toggle-btn lg:hidden fixed top-20 right-4 z-50 bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700">
+  <i class="fas fa-comments text-gray-700 dark:text-gray-300"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div *ngIf="isMessagesOpen" (click)="closeMessages()"
+  class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300">
+</div>
+
 <!-- Messages & Activity Sidebar -->
-<div class="p-5 w-full min-w-64 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto">
+<div [class]="'messages-sidebar p-5 w-full min-w-64 bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto transition-transform duration-300 ' +
+            (isMessagesOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0')">
+
   <!-- Header -->
   <div class="p-4 border-b border-gray-200 dark:border-gray-700">
     <div class="flex items-center justify-between">
@@ -7,9 +20,16 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Activity</h2>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Project updates</p>
       </div>
-      <button class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors">
-        <i class="fas fa-ellipsis-v text-sm"></i>
-      </button>
+      <div class="flex items-center space-x-2">
+        <!-- Close button for mobile -->
+        <button *ngIf="!isMessagesOpen" (click)="closeMessages()"
+          class="lg:hidden p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors">
+          <i class="fas fa-times text-sm"></i>
+        </button>
+        <button class="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors">
+          <i class="fas fa-ellipsis-v text-sm"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -34,84 +54,14 @@
       Recent
     </h3>
     <div class="space-y-3">
-      <div *ngFor="let activity of recentActivities" class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+      <div *ngFor="let activity of recentActivities"
+        class="flex items-start space-x-2 p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
         <div class="flex-shrink-0 w-6 h-6 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center mt-0.5">
           <i class="fas {{ activity.icon }} text-gray-500 dark:text-gray-400 text-xs"></i>
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-xs text-gray-900 dark:text-white leading-tight">{{ activity.message }}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ activity.time }}</p>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Team Messages -->
-  <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-      <i class="fas fa-comments mr-2 text-gray-500"></i>
-      Messages
-    </h3>
-    <div class="space-y-3">
-      <div *ngFor="let message of teamMessages" class="p-2 bg-gray-50 dark:bg-gray-800 rounded">
-        <div class="flex items-center space-x-2 mb-1">
-          <div class="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-300 text-xs font-bold">
-            {{ message.sender.charAt(0) }}
-          </div>
-          <span class="text-xs font-medium text-gray-900 dark:text-white truncate">{{ message.sender }}</span>
-        </div>
-        <p class="text-xs text-gray-700 dark:text-gray-300 leading-tight line-clamp-2">{{ message.content }}</p>
-        <div class="flex items-center justify-between mt-1">
-          <span class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ message.project }}</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400">{{ message.time }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Upcoming Deadlines -->
-  <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-      <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>
-      Deadlines
-    </h3>
-    <div class="space-y-2">
-      <div *ngFor="let deadline of upcomingDeadlines" class="p-2 border border-gray-200 dark:border-gray-600 rounded">
-        <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-medium text-gray-900 dark:text-white truncate">{{ deadline.project }}</span>
-          <span class="text-xs px-1.5 py-0.5 rounded font-medium" [ngClass]="{
-            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': deadline.priority === 'high',
-            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': deadline.priority === 'medium',
-            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': deadline.priority === 'low'
-          }">
-            {{ deadline.daysLeft }}d
-          </span>
-        </div>
-        <p class="text-xs text-gray-600 dark:text-gray-400 truncate">{{ deadline.task }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Due: {{ deadline.dueDate }}</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Actions -->
-  <div class="p-4">
-    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
-      <i class="fas fa-bolt mr-2 text-gray-500"></i>
-      Quick Actions
-    </h3>
-    <div class="space-y-2">
-      <button class="w-full flex items-center space-x-2 p-2 text-left rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs text-gray-700 dark:text-gray-300">
-        <i class="fas fa-plus text-gray-500"></i>
-        <span>New Project</span>
-      </button>
-      <button class="w-full flex items-center space-x-2 p-2 text-left rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs text-gray-700 dark:text-gray-300">
-        <i class="fas fa-user-plus text-gray-500"></i>
-        <span>Invite Team</span>
-      </button>
-      <button class="w-full flex items-center space-x-2 p-2 text-left rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs text-gray-700 dark:text-gray-300">
-        <i class="fas fa-cog text-gray-500"></i>
-        <span>Settings</span>
-      </button>
-    </div>
-  </div>
-</div>

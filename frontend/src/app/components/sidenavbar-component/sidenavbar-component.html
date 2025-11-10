@@ -1,93 +1,124 @@
-<!-- Side Navbar - Scrollable Entire Sidebar -->
-<div class="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto z-40 w-85">
-    <!-- Remove flex-col and just have regular content -->
-    <div class="py-4 px-1">
-        <!-- Recent Projects Section -->
-        <div class="px-2">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
-                    Recent Projects
-                </h3>
-            </div>
+<!-- Mobile Toggle Button -->
+<button 
+  *ngIf="!isSidebarOpen"
+  (click)="toggleSidebar()"
+  class="mobile-toggle-btn md:hidden fixed top-20 left-4 z-50 bg-white dark:bg-gray-800 p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700">
+  <i class="fas fa-bars text-gray-700 dark:text-gray-300"></i>
+</button>
 
-            <!-- Search Bar -->
-            <div class="relative mb-3">
-                <input
-                    type="text"
-                    placeholder="Find a project..."
-                    [(ngModel)]="searchQuery"
-                    (input)="filterProjects()"
-                    class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-md py-1.5 px-3 pl-8 focus:outline-none focus:ring-1 focus:ring-pink-500 dark:focus:ring-pink-600 text-gray-800 dark:text-gray-200 dark:bg-gray-700 transition-all duration-200"
-                />
-                <span class="absolute left-2.5 top-1.5 text-gray-400 dark:text-gray-500 text-xs">
-                    <i class="fas fa-search"></i>
-                </span>
-            </div>
+<!-- Mobile Overlay -->
+<div 
+  *ngIf="isSidebarOpen"
+  (click)="closeSidebar()"
+  class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300">
+</div>
 
-            <!-- Projects List -->
-            <div class="space-y-1 max-h-64 overflow-y-auto">
-                <div 
-                    *ngFor="let project of filteredProjects"
-                    class="flex items-center px-2 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md cursor-pointer transition-all duration-200 group">
-                    <i class="fas fa-folder text-gray-400 dark:text-gray-500 w-5 text-center mr-2 group-hover:text-yellow-400"></i>
-                    <span class="truncate flex-1">{{project.name}}</span>
-                </div>
-            </div>
+<!-- Side Navbar -->
+<div 
+  [class]="'sidebar bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto z-40 w-80 transition-transform duration-300 ' + 
+            (isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0')">
+  
+  <div class="py-5 px-1">
+    <!-- Recent Projects Section -->
+    <div class="px-2">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+          Recent Projects
+        </h3>
+      </div>
 
-            <!-- Show More Button -->
-            <button 
-                *ngIf="showMoreVisible"
-                class="w-full text-left text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mt-2 px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                Show more
-            </button>
+      <!-- Search Bar -->
+      <div class="relative mb-3">
+        <input
+          type="text"
+          placeholder="Find a project..."
+          [(ngModel)]="searchQuery"
+          (input)="filterProjects()"
+          class="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-md py-1.5 px-3 pl-8 focus:outline-none focus:ring-1 focus:ring-pink-500 dark:focus:ring-pink-600 text-gray-800 dark:text-gray-200 dark:bg-gray-700 transition-all duration-200"
+        />
+        <span class="absolute left-2.5 top-1.5 text-gray-400 dark:text-gray-500 text-xs">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+
+      <!-- Projects List -->
+      <div class="space-y-1 max-h-64 overflow-y-auto">
+        <div 
+          *ngFor="let project of visibleProjects"
+          class="flex items-center px-2 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md cursor-pointer transition-all duration-200 group">
+          <i class="fas fa-folder text-gray-400 dark:text-gray-500 w-5 text-center mr-2 group-hover:text-yellow-400"></i>
+          <span class="truncate flex-1">{{project.name}}</span>
         </div>
-
-        <!-- Divider -->
-        <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
-
-        <!-- Workspace Links -->
-        <div class="px-3 space-y-1">
-            <a 
-                routerLink="/templates" 
-                routerLinkActive="text-pink-500 dark:text-pink-400 bg-gray-50 dark:bg-gray-800"
-                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                <i class="fas fa-layer-group w-5 text-center"></i>
-                <span class="ml-3">Drafts</span>
-            </a>
-            <a 
-                (click)="logout()"
-                routerLinkActive="text-pink-500 dark:text-pink-400 bg-gray-50 dark:bg-gray-800"
-                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                <i class="fas fa-trash w-5 text-center"></i>
-                <span class="ml-3">logout</span>
-            </a>
-            
-            <a 
-                routerLink="/settings" 
-                routerLinkActive="text-pink-500 dark:text-pink-400 bg-gray-50 dark:bg-gray-800"
-                class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 group">
-                <i class="fas fa-cog w-5 text-center"></i>
-                <span class="ml-3">Settings</span>
-            </a>
-            
+        
+        <!-- No projects found message -->
+        <div 
+          *ngIf="filteredProjects.length === 0" 
+          class="flex items-center px-2 py-2 text-sm text-gray-500 dark:text-gray-400 justify-center">
+          No projects found
         </div>
+      </div>
 
-        <!-- User Section - Now part of scrollable content -->
-        <div class="mt-8 p-4 border-t border-gray-200 dark:border-gray-700">
-            <div class="flex items-center space-x-3">
-                <span class="h-8 w-8 rounded-full bg-pink-800 text-center text-white font-bold">
-                    {{name?.charAt(0)}}
-                </span>
-                
-                <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {{name}}
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {{userEmail}}
-                    </p>
-                </div>
-            </div>
-        </div>
+      <!-- Show More/Less Button -->
+      <button 
+        *ngIf="shouldShowMoreButton"
+        (click)="toggleShowMore()"
+        class="w-full text-left text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mt-2 px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+        Show more
+      </button>
+      
+      <button 
+        *ngIf="isShowingAll && filteredProjects.length > 5"
+        (click)="toggleShowMore()"
+        class="w-full text-left text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mt-2 px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+        Show less
+      </button>
     </div>
+
+    <!-- Divider -->
+    <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+
+    <!-- Workspace Links -->
+    <div class="px-3 space-y-1">
+      <a 
+        routerLink="/templates" 
+        routerLinkActive="text-pink-500 dark:text-pink-400 bg-gray-50 dark:bg-gray-800"
+        class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+        <i class="fas fa-layer-group w-5 text-center"></i>
+        <span class="ml-3">Drafts</span>
+      </a>
+      
+      <a 
+        (click)="logout()"
+        class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 group cursor-pointer">
+        <i class="fas fa-sign-out-alt w-5 text-center"></i>
+        <span class="ml-3">Logout</span>
+      </a>
+      
+      <a 
+        routerLink="/settings" 
+        routerLinkActive="text-pink-500 dark:text-pink-400 bg-gray-50 dark:bg-gray-800"
+        class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 group">
+        <i class="fas fa-cog w-5 text-center"></i>
+        <span class="ml-3">Settings</span>
+      </a>
+    </div>
+
+    <!-- User Section -->
+    <div class="mt-8 p-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-center space-x-3">
+        <span class="h-8 w-8 rounded-full bg-pink-800 text-center text-white font-bold flex items-center justify-center">
+          {{name?.charAt(0)}}
+        </span>
+        
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+            {{name}}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            {{userEmail}}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
