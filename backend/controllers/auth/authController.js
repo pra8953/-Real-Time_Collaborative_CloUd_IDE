@@ -31,6 +31,7 @@ const signup = async(req,res)=>{
         res.status(201).json({
             success:true,
             message:"User Register successfully!",
+            name,
             token
         })
 
@@ -72,6 +73,7 @@ const login = async(req,res)=>{
         res.status(200).json({
             success:true,
             message:"login successfully!",
+            name:userExists.name,
             token
         })
 
