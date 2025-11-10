@@ -4,6 +4,9 @@ const userSchema = mongoose.Schema({
       type: String,
       unique: true,
       trim: true,
+      default: function () {
+        return this.email.split('@')[0] + Date.now(); 
+      }
     },
 
     name: {
@@ -16,8 +19,7 @@ const userSchema = mongoose.Schema({
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
-      trim: true,
+      
     },
 
     // Auth provider info (dynamic)
@@ -26,7 +28,7 @@ const userSchema = mongoose.Schema({
         provider: {
           type: String,
           enum: ['email', 'google', 'github'],
-          required: true,
+        
           default: 'email'
         },
         providerId: {
@@ -34,22 +36,19 @@ const userSchema = mongoose.Schema({
           default: '',
         },
       },
-      required: true,
+    
     },
 
     projects: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project', // reference to Project model
+        ref: 'Project',
       },
     ],
 
     password: {
       type: String,
-      required: function () {
-        // password required only if provider = email
-        return this.authProvider.provider === 'email';
-      },
+      required:true
     },
   },
   {

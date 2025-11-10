@@ -29,8 +29,7 @@ const signupValidation = (req,res,next)=>{
     try{
         const userSchema = joi.object({
               name:joi.string().min(3).required(),
-             email: joi.string()
-  .email().required(),
+             email: joi.string().email().required(),
             password:joi.string().min(8).required()
         })
 
@@ -45,7 +44,7 @@ const signupValidation = (req,res,next)=>{
     }catch(err){
         res.status(500).json({
             success:false,
-            message:"Internal server error"
+            message:"Internal server error 1"
         })
     }
 }
