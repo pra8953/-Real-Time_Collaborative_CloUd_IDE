@@ -1,6 +1,8 @@
+declare var Toastify: any;
 import { CommonModule } from '@angular/common';
-import { Component} from '@angular/core';
+import { Component, inject} from '@angular/core';
 import { FormsModule, NgModel } from '@angular/forms';
+import { Router } from '@angular/router';
 interface Project {
   name: string;
   icon: string;
@@ -12,9 +14,11 @@ interface Project {
   styleUrl: './sidenavbar-component.css',
 })
 export class SidenavbarComponent {
+  userEmail = localStorage.getItem('email');
+  name=localStorage.getItem('name');
   searchQuery: string = '';
   showMoreVisible: boolean = true;
-
+  router = inject(Router)
   projects: Project[] = [
     { name: 'GeeksForGeeks160dayChallenge', icon: 'folder' },
     { name: 'my_video_tracker_xblock', icon: 'folder' },
@@ -44,5 +48,18 @@ export class SidenavbarComponent {
     // Implement create new project logic
     console.log('Create new project clicked');
     // You can open a modal or navigate to project creation page
+  }
+
+  logout(){
+    
+    localStorage.clear();
+     Toastify({
+          text: 'Logout successful!',
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+        }).showToast();
+        this.router.navigateByUrl('/');
   }
 }

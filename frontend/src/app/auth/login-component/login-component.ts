@@ -143,6 +143,7 @@ export class LoginComponent implements OnInit {
   }
 
   const loginData = this.userLogin.value;
+  const email = this.userLogin.get('email')?.value ?? 'user@gmail.com';
   this.isLoading = true;
 
   this.authService.login(loginData).subscribe({
@@ -163,6 +164,8 @@ export class LoginComponent implements OnInit {
 
       // Success
       localStorage.setItem('token', result.token);
+      localStorage.setItem('name', result.name);
+      localStorage.setItem('email', email);
 
       Toastify({
         text: "Login successful!",

@@ -160,13 +160,15 @@ export class SignupComponent implements OnInit {
 
   this.isLoading = true;
   const data = this.signupData.value;
-
+  const email = this.signupData.get('email')?.value ?? 'user@gmail.com';
   this.authService.signup(data).subscribe({
     next: (result: any) => {
       this.isLoading = false;
 
       if (result.success) {
         localStorage.setItem('token', result.token);
+        localStorage.setItem('email',email)
+        localStorage.setItem('name',result.name)
 
         Toastify({
           text: result.message || 'Signup successful!',

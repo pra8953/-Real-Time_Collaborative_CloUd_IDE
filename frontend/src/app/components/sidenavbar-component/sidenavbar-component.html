@@ -55,11 +55,11 @@
                 <span class="ml-3">Drafts</span>
             </a>
             <a 
-                routerLink="/templates" 
+                (click)="logout()"
                 routerLinkActive="text-pink-500 dark:text-pink-400 bg-gray-50 dark:bg-gray-800"
                 class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 group">
                 <i class="fas fa-trash w-5 text-center"></i>
-                <span class="ml-3">Trash</span>
+                <span class="ml-3">logout</span>
             </a>
             
             <a 
@@ -69,21 +69,22 @@
                 <i class="fas fa-cog w-5 text-center"></i>
                 <span class="ml-3">Settings</span>
             </a>
+            
         </div>
 
         <!-- User Section - Now part of scrollable content -->
         <div class="mt-8 p-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center space-x-3">
-                <img 
-                    src="https://img.icons8.com/?size=1200&id=mSpyyubrjSWs&format=png" 
-                    alt="User avatar" 
-                    class="h-8 w-8 rounded-full">
+                <span class="h-8 w-8 rounded-full bg-pink-800 text-center text-white font-bold">
+                    {{name?.charAt(0)}}
+                </span>
+                
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        Ritu Raj Verma
+                        {{name}}
                     </p>
                     <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        riturajkumar8544@gmail.com
+                        {{userEmail}}
                     </p>
                 </div>
             </div>
