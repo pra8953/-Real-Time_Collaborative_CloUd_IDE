@@ -14,6 +14,6 @@ export const routes: Routes = [
   // protected Routes
   {path:'dashboard',
     component:DashboardComponent,
-    // canActivate:[authGuard]
+    canActivate:[authGuard]
   }
 ];
