@@ -118,22 +118,19 @@
         <!-- Remember Me & Forgot Password -->
         <div class="flex items-center justify-between">
           <label class="remember-me">
-            <input type="checkbox"  name="rememberMe" class="checkbox" />
+            <input type="checkbox" name="rememberMe" class="checkbox" />
             <span class="checkmark"></span>
             Remember me
           </label>
-          <button type="button" class="forgot-password">
-            Forgot password?
-          </button>
+          <button type="button" class="forgot-password">Forgot password?</button>
         </div>
 
         <!-- Login Button -->
         <button
-         (click)="onLogin()"
+          (click)="onLogin()"
           class="login-btn primary-btn group w-full cursor-pointer"
           [disabled]="isLoading"
           [class.loading]="isLoading"
-
         >
           <span class="btn-spinner" *ngIf="isLoading"></span>
           <span class="btn-icon" *ngIf="!isLoading">🚀</span>
@@ -152,7 +149,7 @@
       <!-- Social Login Buttons -->
       <div class="social-buttons grid grid-cols-2 gap-3">
         <button
-          
+          (click)="onGoogleLogin()"
           class="social-btn google-btn group cursor-pointer"
           [disabled]="isLoading"
         >
@@ -178,7 +175,7 @@
         </button>
 
         <button
-          
+          (click)="onGithubLogin()"
           class="social-btn github-btn group cursor-pointer"
           [disabled]="isLoading"
         >

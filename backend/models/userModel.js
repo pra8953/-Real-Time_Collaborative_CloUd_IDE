@@ -1,12 +1,10 @@
-const mongoose = require('mongoose');
-const userSchema = mongoose.Schema({
+const mongoose = require("mongoose");
+const userSchema = mongoose.Schema(
+  {
     username: {
       type: String,
       unique: true,
       trim: true,
-      default: function () {
-        return this.email.split('@')[0] + Date.now(); 
-      }
     },
 
     name: {
@@ -19,42 +17,40 @@ const userSchema = mongoose.Schema({
       type: String,
       required: true,
       unique: true,
-      
     },
 
     // Auth provider info (dynamic)
     authProvider: {
-      type: {
-        provider: {
-          type: String,
-          enum: ['email', 'google', 'github'],
-        
-          default: 'email'
-        },
-        providerId: {
-          type: String, // googleId / githubId / empty if email login
-          default: '',
-        },
+      provider: {
+        type: String,
+        enum: ["email", "google", "github"],
+        default: "email",
       },
-    
+      providerId: {
+        type: String, // googleId / githubId / empty if email login
+        default: "",
+      },
     },
 
     projects: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project',
+        ref: "Project",
       },
     ],
 
     password: {
       type: String,
-      required:true
+      required: function () {
+        return this.authProvider?.provider === "email";
+      },
+      default: "",
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
-)
+);
 
-const userModel = mongoose.model("Users",userSchema);
+const userModel = mongoose.model("Users", userSchema);
 module.exports = userModel;

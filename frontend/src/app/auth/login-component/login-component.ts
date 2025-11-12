@@ -2,7 +2,13 @@ declare var Toastify: any;
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 import {
   trigger,
@@ -17,7 +23,7 @@ import { Authservices } from '../../core/services/authservices';
 
 @Component({
   selector: 'app-login',
-  
+
   imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './login-component.html',
   styleUrls: ['./login-component.css'],
@@ -75,9 +81,9 @@ import { Authservices } from '../../core/services/authservices';
 })
 export class LoginComponent implements OnInit {
   userLogin = new FormGroup({
-      email:new FormControl('',[Validators.required, Validators.email]),
-      password:new FormControl('',[Validators.required,Validators.minLength(8)])
-  })
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+  });
   rememberMe: boolean = false;
   isLoading: boolean = false;
 
@@ -85,7 +91,7 @@ export class LoginComponent implements OnInit {
   floatingElements: any[] = [];
   currentParticleState = 0;
 
-  constructor(private el: ElementRef, private router: Router,private authService:Authservices) {}
+  constructor(private el: ElementRef, private router: Router, private authService: Authservices) {}
 
   ngOnInit() {
     this.generateParticles();
@@ -136,70 +142,75 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-  if (this.userLogin.invalid) {
-    // Optionally, mark all fields as touched
-    this.userLogin.markAllAsTouched();
-    return;
-  }
-
-  const loginData = this.userLogin.value;
-  const email = this.userLogin.get('email')?.value ?? 'user@gmail.com';
-  this.isLoading = true;
-
-  this.authService.login(loginData).subscribe({
-    next: (result: any) => {
-      this.isLoading = false;
-
-      if (!result.success) {
-        // Show backend error message
-        Toastify({
-          text: "Login failed! " + (result.message || ''),
-          duration: 4000,
-          gravity: "top",
-          position: "right",
-          backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
-        }).showToast();
-        return;
-      }
-
-      // Success
-      localStorage.setItem('token', result.token);
-      localStorage.setItem('name', result.name);
-      localStorage.setItem('email', email);
-
-      Toastify({
-        text: "Login successful!",
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
-      }).showToast();
-
-      this.router.navigateByUrl('/dashboard');
-    },
-    error: (err) => {
-      this.isLoading = false;
-
-      const errorMessage = err.error?.message || 'Something went wrong! Please try again.';
-
-      Toastify({
-        text: "Login failed! " + errorMessage,
-        duration: 4000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
-      }).showToast();
-
-      console.error('Login error:', err);
+    if (this.userLogin.invalid) {
+      // Optionally, mark all fields as touched
+      this.userLogin.markAllAsTouched();
+      return;
     }
-  });
-}
 
+    const loginData = this.userLogin.value;
+    const email = this.userLogin.get('email')?.value ?? 'user@gmail.com';
+    this.isLoading = true;
 
-  
+    this.authService.login(loginData).subscribe({
+      next: (result: any) => {
+        this.isLoading = false;
+
+        if (!result.success) {
+          // Show backend error message
+          Toastify({
+            text: 'Login failed! ' + (result.message || ''),
+            duration: 4000,
+            gravity: 'top',
+            position: 'right',
+            backgroundColor: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+          }).showToast();
+          return;
+        }
+
+        // Success
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('name', result.name);
+        localStorage.setItem('email', email);
+
+        Toastify({
+          text: 'Login successful!',
+          duration: 3000,
+          gravity: 'top',
+          position: 'right',
+          backgroundColor: 'linear-gradient(to right, #00b09b, #96c93d)',
+        }).showToast();
+
+        this.router.navigateByUrl('/dashboard');
+      },
+      error: (err) => {
+        this.isLoading = false;
+
+        const errorMessage = err.error?.message || 'Something went wrong! Please try again.';
+
+        Toastify({
+          text: 'Login failed! ' + errorMessage,
+          duration: 4000,
+          gravity: 'top',
+          position: 'right',
+          backgroundColor: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+        }).showToast();
+
+        console.error('Login error:', err);
+      },
+    });
+  }
 
   onSignUp() {
     this.router.navigate(['/signup']);
+  }
+
+  onGoogleLogin() {
+    window.location.href = 'http://localhost:3600/api/auth/google';
+  }
+
+  onGithubLogin() {
+    window.location.href = 'http://localhost:3600/api/auth/github';
   }
 
   onBackToHome() {
