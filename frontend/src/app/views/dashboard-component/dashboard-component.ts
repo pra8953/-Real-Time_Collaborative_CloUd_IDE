@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,HostListener } from '@angular/core';
 import { NavbarComponent } from '../../components/navbar-component/navbar-component';
 import { SidenavbarComponent } from '../../components/sidenavbar-component/sidenavbar-component';
 import { ProjectlistComponent } from '../../components/projectlist-component/projectlist-component';
@@ -10,5 +10,18 @@ import { MeslistComponent } from '../../components/meslist-component/meslist-com
   styleUrl: './dashboard-component.css',
 })
 export class DashboardComponent {
+  isMobile = false;
 
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.checkMobile();
+  }
+
+  ngOnInit() {
+    this.checkMobile();
+  }
+
+  private checkMobile() {
+    this.isMobile = window.innerWidth < 1024;
+  }
 }

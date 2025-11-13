@@ -4,7 +4,7 @@ import { trigger, transition, style, animate, query, stagger, keyframes } from '
 
 @Component({
   selector: 'app-faq-component',
-  imports: [NgClass, NgIf, NgFor],
+  imports: [NgIf, NgFor],
   templateUrl: './faq-component.html',
   styleUrls: ['./faq-component.css'],
   animations: [
@@ -67,38 +67,38 @@ import { trigger, transition, style, animate, query, stagger, keyframes } from '
 export class FaqComponent {
   faqs = [
     {
-      question: 'What is Leeco and how does it help in career growth?',
-      answer: 'Leeco is an AI-powered career assistant that helps you learn, practice, and grow through personalized resources and insights.',
+      question: 'What is CodeCollab?',
+      answer: 'CodeCollab is a real-time collaborative IDE that allows multiple users to code, edit, and debug together online. It works directly in your browser — no installation required.',
       open: false,
       icon: '🚀'
     },
     {
-      question: 'How is Leeco different from other AI models like ChatGPT or Gemini?',
-      answer: 'Leeco focuses specifically on career advancement, interview prep, and skill-building with real-time feedback and mentorship options.',
+      question: 'How does real-time collaboration work?',
+      answer: 'When multiple users open the same project, every keystroke, cursor movement, and change is instantly synchronized using WebSocket-based technology, ensuring a smooth, live editing experience for everyone.',
       open: false,
       icon: '⚡'
     },
     {
-      question: 'How does Leeco create a personalized learning path for me?',
-      answer: 'It analyzes your skills, goals, and progress using AI to tailor a step-by-step learning journey just for you.',
+      question: 'Can I run my code directly in the IDE?',
+      answer: 'Yes! CodeCollab supports running and testing code in multiple languages using secure containerized environments, so you can see results instantly without leaving the editor.',
       open: false,
       icon: '🎯'
     },
     {
-      question: 'Can Leeco actually help me prepare for real interviews?',
-      answer: 'Yes! It offers mock interviews, personalized feedback, and curated practice questions for your desired role.',
+      question: 'What technologies power CodeTogether?',
+      answer: 'CodeTogether is built with Angular, Node.js, and Express on the frontend and backend, using Socket.io for real-time communication and Monaco Editor (the same editor used by VS Code) for the code editing interface.',
       open: false,
       icon: '💼'
     },
     {
-      question: 'Does Leeco work on all coding platforms like LeetCode or HackerRank?',
-      answer: 'Yes, Leeco integrates with popular platforms to track your progress and recommend challenges.',
+      question: 'Can I collaborate with friends in different locations?',
+      answer: 'Yes! That’s the heart of CodeTogether — invite anyone from anywhere, and start coding together instantly, just by sharing a project link.',
       open: false,
       icon: '🔗'
     },
     {
-      question: 'Are human mentors available on Leeco if I get stuck?',
-      answer: 'Yes, you can connect with real mentors for guidance, resume reviews, or mock interviews anytime.',
+      question: 'Do I need to install anything to use CodeTogether?',
+      answer: 'No installation is required! CodeCollab runs entirely in your browser. Just sign in, create or join a project, and start coding collaboratively in seconds',
       open: false,
       icon: '👥'
     },

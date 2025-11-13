@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 
 interface Project {
   id: number;
@@ -13,6 +13,7 @@ interface Project {
   commits: number;
   collaborators: string[];
 }
+
 @Component({
   selector: 'app-projectlist-component',
   imports: [CommonModule],
@@ -94,4 +95,55 @@ export class ProjectlistComponent {
       collaborators: ['Eva', 'Frank', 'Grace']
     }
   ];
+
+  // Mobile state management
+  isMobile = false;
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.checkMobile();
+  }
+
+  ngOnInit() {
+    this.checkMobile();
+  }
+
+  private checkMobile() {
+    this.isMobile = window.innerWidth < 768;
+  }
+
+  // Format date for display
+  formatDate(date: Date): string {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  // Get relative time for updated date
+  getRelativeTime(date: Date): string {
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) {
+      return 'Just now';
+    } else if (diffInHours < 24) {
+      return `${diffInHours}h ago`;
+    } else if (diffInHours < 168) {
+      return `${Math.floor(diffInHours / 24)}d ago`;
+    } else {
+      return this.formatDate(date);
+    }
+  }
+
+  createNewProject() {
+    console.log('Create new project clicked');
+    // Implement project creation logic
+  }
+
+  openProject(project: Project) {
+    console.log('Opening project:', project.name);
+    // Implement project opening logic
+  }
 }

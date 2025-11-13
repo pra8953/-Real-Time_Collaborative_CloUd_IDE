@@ -1,3 +1,11 @@
+/* Project List Container */
+.project-list-container {
+  margin-left: 0;
+  margin-right: 0;
+  transition: margin 0.3s ease-in-out;
+}
+
+/* Line clamp utility */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -5,37 +13,120 @@
   overflow: hidden;
 }
 
-/* Smooth transitions */
-* {
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .project-list-container {
+    padding: 1rem;
+  }
+  
+  /* Compact project cards for mobile */
+  .project-card-mobile {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .project-list-container {
+    margin-left: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .project-list-container {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* Ensure proper spacing when sidebars are open/closed */
+@media (min-width: 768px) {
+  .project-list-container {
+    margin-left: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .project-list-container {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* Hover effects */
+.group:hover .group-hover\\:scale-105 {
+  transform: scale(1.05);
+}
+
+.group:hover .group-hover\\:text-pink-500 {
+  color: #ec4899;
+}
+
+/* Smooth transitions for all interactive elements */
+button, .project-card {
   transition: all 0.2s ease-in-out;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
+/* Focus states for accessibility */
+button:focus {
+  outline: 2px solid #ec4899;
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+.project-list-container::-webkit-scrollbar {
   width: 6px;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+.project-list-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
   border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+.project-list-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
 }
 
-.dark ::-webkit-scrollbar-track {
+.project-list-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark .project-list-container::-webkit-scrollbar-track {
   background: #374151;
 }
 
-.dark ::-webkit-scrollbar-thumb {
+.dark .project-list-container::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark .project-list-container::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+/* Custom gradient text for better visibility */
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Collaborator avatars stacking */
+.collaborator-avatar {
+  transition: transform 0.2s ease-in-out;
+}
+
+.collaborator-avatar:hover {
+  transform: translateX(4px);
+  z-index: 10;
 }

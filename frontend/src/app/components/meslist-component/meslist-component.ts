@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 
 interface Activity {
   icon: string;
@@ -29,6 +29,7 @@ interface Deadline {
   styleUrl: './meslist-component.css',
 })
 export class MeslistComponent {
+  isMessagesOpen = false;
   totalProjects = 6;
   activeProjects = 4;
 
@@ -86,4 +87,48 @@ export class MeslistComponent {
       priority: 'medium'
     }
   ];
+
+  toggleMessages() {
+    this.isMessagesOpen = !this.isMessagesOpen;
+  }
+
+  closeMessages() {
+    this.isMessagesOpen = false;
+  }
+
+  // Close messages when clicking outside on mobile
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (this.isMessagesOpen && window.innerWidth < 1024) {
+      if (!target.closest('.messages-sidebar') && !target.closest('.messages-toggle-btn')) {
+        this.closeMessages();
+      }
+    }
+  }
+
+  // Close messages on escape key
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    if (this.isMessagesOpen && window.innerWidth < 1024) {
+      this.closeMessages();
+    }
+  }
+
+  // Handle window resize
+  @HostListener('window:resize')
+  onWindowResize() {
+    if (window.innerWidth >= 1024) {
+      this.isMessagesOpen = true;
+    } else {
+      this.isMessagesOpen = false;
+    }
+  }
+
+  ngOnInit() {
+    // Initialize based on screen size
+    if (window.innerWidth >= 1024) {
+      this.isMessagesOpen = true;
+    }
+  }
 }
