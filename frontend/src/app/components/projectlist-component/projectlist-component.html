@@ -1,14 +1,15 @@
 <!-- Project List Section -->
-<div class="p-5 w-full bg-gray-50 dark:bg-gray-800 min-h-screen">
+<div class="project-list-container p-4 md:p-6 w-full bg-gray-50 dark:bg-gray-800 min-h-screen transition-all duration-300">
   <!-- Header -->
   <div class="mb-6">
-    <div class="flex items-center justify-between">
-      <div>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex-1">
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-1">My Projects</h1>
         <p class="text-gray-600 dark:text-gray-400 text-sm">Manage and organize your development projects</p>
       </div>
       <button 
-        class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
+        (click)="createNewProject()"
+        class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm whitespace-nowrap w-full sm:w-auto">
         <i class="fas fa-plus mr-2"></i>
         Create New Project
       </button>
@@ -16,8 +17,8 @@
   </div>
 
   <!-- Welcome Message -->
-  <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
-    <div class="flex items-start space-x-4">
+  <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-start gap-4">
       <div class="flex-shrink-0">
         <i class="fas fa-rocket text-2xl text-pink-500"></i>
       </div>
@@ -26,8 +27,9 @@
         <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed">
           Start collaborating on your projects. Create new projects, invite team members, and track your progress in real-time.
         </p>
-        <div class="flex items-center space-x-3">
+        <div class="flex flex-col sm:flex-row gap-3">
           <button 
+            (click)="createNewProject()"
             class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
             <i class="fas fa-plus mr-2"></i>
             Create New Project
@@ -42,29 +44,29 @@
     </div>
   </div>
 
-  <!-- Projects List - Compact -->
+  <!-- Projects List -->
   <div class="space-y-4">
     <!-- Project Card -->
     <div 
       *ngFor="let project of projects" 
       class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer group">
       
-      <div class="p-4">
-        <div class="flex items-start justify-between">
+      <div class="p-4 md:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <!-- Left Content -->
-          <div class="flex items-start space-x-4 flex-1">
+          <div class="flex items-start gap-4 flex-1">
             <!-- Project Icon -->
-            <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+            <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 flex-shrink-0">
               <i class="fas fa-folder text-white text-lg"></i>
             </div>
             
             <!-- Project Details -->
-            <div class="flex-1">
-              <div class="flex items-center space-x-3 mb-3">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-pink-500 transition-colors duration-200">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-pink-500 transition-colors duration-200 truncate">
                   {{ project.name }}
                 </h3>
-                <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="{
+                <span class="px-3 py-1 rounded-full text-xs font-medium w-fit" [ngClass]="{
                   'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': project.status === 'active',
                   'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': project.status === 'draft',
                   'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200': project.status === 'archived'
@@ -73,19 +75,46 @@
                 </span>
               </div>
               
-              <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed">
+              <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
                 {{ project.description }}
               </p>
 
-              <!-- Project Meta -->
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <!-- Project Meta - Mobile Compact -->
+              <div class="lg:hidden space-y-3 mb-4">
+                <!-- Stats Row -->
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                      <i class="fas fa-code-branch text-pink-500 w-4"></i>
+                      <span>{{ project.branches }}</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                      <i class="fas fa-code text-pink-500 w-4"></i>
+                      <span>{{ project.commits }}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                    <i class="fas fa-users text-pink-500 w-4"></i>
+                    <span>{{ project.collaborators.length }}</span>
+                  </div>
+                </div>
+
+                <!-- Timestamps -->
+                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <span>Updated {{ getRelativeTime(project.updatedAt) }}</span>
+                  <span>Created {{ formatDate(project.createdAt) }}</span>
+                </div>
+              </div>
+
+              <!-- Project Meta - Desktop -->
+              <div class="hidden lg:grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                 <!-- Stats -->
                 <div class="space-y-2">
-                  <div class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 text-sm">
+                  <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
                     <i class="fas fa-code-branch text-pink-500 w-4"></i>
                     <span class="font-medium">{{ project.branches }} Branches</span>
                   </div>
-                  <div class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 text-sm">
+                  <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
                     <i class="fas fa-code text-pink-500 w-4"></i>
                     <span class="font-medium">{{ project.commits }} Commits</span>
                   </div>
@@ -93,30 +122,30 @@
 
                 <!-- Timestamps -->
                 <div class="space-y-2">
-                  <div class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 text-sm">
+                  <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
                     <i class="fas fa-calendar-plus text-pink-500 w-4"></i>
                     <div>
                       <div class="text-xs text-gray-500 dark:text-gray-400">Created</div>
-                      <div class="font-medium text-xs">{{ project.createdAt | date:'short' }}</div>
+                      <div class="font-medium text-xs">{{ formatDate(project.createdAt) }}</div>
                     </div>
                   </div>
                 </div>
 
                 <div class="space-y-2">
-                  <div class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 text-sm">
+                  <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
                     <i class="fas fa-clock text-pink-500 w-4"></i>
                     <div>
                       <div class="text-xs text-gray-500 dark:text-gray-400">Updated</div>
-                      <div class="font-medium text-xs">{{ project.updatedAt | date:'short' }}</div>
+                      <div class="font-medium text-xs">{{ getRelativeTime(project.updatedAt) }}</div>
                     </div>
                   </div>
                 </div>
 
                 <!-- Collaborators -->
                 <div class="space-y-2">
-                  <div class="flex items-center space-x-2 text-gray-700 dark:text-gray-300 text-sm">
+                  <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
                     <i class="fas fa-users text-pink-500 w-4"></i>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center gap-2">
                       <div class="flex -space-x-1">
                         <div 
                           *ngFor="let collaborator of project.collaborators.slice(0, 3)" 
@@ -138,11 +167,13 @@
           </div>
 
           <!-- Right Actions -->
-          <div class="flex flex-col items-end space-y-2 ml-4">
-            <button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start gap-2 lg:gap-2 lg:ml-4">
+            <button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 order-2 lg:order-1">
               <i class="fas fa-ellipsis-v"></i>
             </button>
-            <button class="px-4 py-2 bg-gradient-to-r from-green-500 to-white-600 hover:from-white-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm">
+            <button 
+              (click)="openProject(project)"
+              class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm order-1 lg:order-2 whitespace-nowrap">
               <i class="fas fa-arrow-right mr-1"></i>
               Open
             </button>
@@ -162,6 +193,7 @@
       It looks like you haven't created any projects yet. Start your journey by creating your first project!
     </p>
     <button 
+      (click)="createNewProject()"
       class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
       <i class="fas fa-plus mr-2"></i>
       Create Your First Project

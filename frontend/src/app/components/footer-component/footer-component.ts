@@ -1,8 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-footer-component',
   templateUrl: './footer-component.html',
+  imports:[CommonModule,FormsModule],
   styleUrls: ['./footer-component.css']
 })
 export class FooterComponent {

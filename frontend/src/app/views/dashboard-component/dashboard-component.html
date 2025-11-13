@@ -1,6 +1,16 @@
+<!-- Navbar -->
 <app-navbar-component></app-navbar-component>
-<div class="flex min-h-screen">
+
+<!-- Main Layout -->
+<div class="flex min-h-screen pt-0 bg-gray-50 dark:bg-gray-800">
+    <!-- Left Sidebar -->
     <app-sidenavbar-component></app-sidenavbar-component>
-    <app-projectlist-component></app-projectlist-component>
+    
+    <!-- Main Content -->
+    <main class="flex-1 min-w-0">
+        <app-projectlist-component></app-projectlist-component>
+    </main>
+    
+    <!-- Right Messages Sidebar -->
     <app-meslist-component></app-meslist-component>
 </div>
