@@ -1,9 +1,14 @@
-
 declare var Toastify: any;
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 import {
   trigger,
@@ -78,7 +83,7 @@ export class SignupComponent implements OnInit {
   signupData = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required, Validators.minLength(6)])
+    password: new FormControl('', [Validators.required, Validators.minLength(6)]),
   });
 
   confirmPassword: string = '';
@@ -94,7 +99,7 @@ export class SignupComponent implements OnInit {
   ngOnInit() {
     this.generateParticles();
     this.generateFloatingElements();
-    
+
     setInterval(() => {
       this.currentParticleState++;
     }, 2000);
@@ -106,10 +111,7 @@ export class SignupComponent implements OnInit {
   }
 
   get formValid(): boolean {
-    return this.signupData.valid && 
-           !this.passwordMismatch && 
-           this.acceptTerms && 
-           !this.isLoading;
+    return this.signupData.valid && !this.passwordMismatch && this.acceptTerms && !this.isLoading;
   }
 
   generateParticles() {
@@ -153,64 +155,63 @@ export class SignupComponent implements OnInit {
   }
 
   onSignup() {
-  if (!this.formValid) {
-    this.markFormGroupTouched();
-    return;
+    if (!this.formValid) {
+      this.markFormGroupTouched();
+      return;
+    }
+
+    this.isLoading = true;
+    const data = this.signupData.value;
+    const email = this.signupData.get('email')?.value ?? 'user@gmail.com';
+    this.authService.signup(data).subscribe({
+      next: (result: any) => {
+        this.isLoading = false;
+
+        if (result.success) {
+          localStorage.setItem('token', result.token);
+          localStorage.setItem('email', email);
+          localStorage.setItem('name', result.name);
+
+          Toastify({
+            text: result.message || 'Signup successful!',
+            duration: 3000,
+            gravity: 'top',
+            position: 'right',
+            backgroundColor: 'linear-gradient(to right, #00b09b, #96c93d)',
+          }).showToast();
+
+          this.router.navigate(['/dashboard']);
+        } else {
+          // Show backend error message in toast
+          Toastify({
+            text: result.message || 'Signup failed. Please try again.',
+            duration: 4000,
+            gravity: 'top',
+            position: 'right',
+            backgroundColor: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+          }).showToast();
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+
+        const errorMessage = err.error?.message || 'Something went wrong! Please try again.';
+
+        Toastify({
+          text: errorMessage,
+          duration: 4000,
+          gravity: 'top',
+          position: 'right',
+          backgroundColor: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+        }).showToast();
+
+        console.error('Signup error:', err);
+      },
+    });
   }
 
-  this.isLoading = true;
-  const data = this.signupData.value;
-  const email = this.signupData.get('email')?.value ?? 'user@gmail.com';
-  this.authService.signup(data).subscribe({
-    next: (result: any) => {
-      this.isLoading = false;
-
-      if (result.success) {
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('email',email)
-        localStorage.setItem('name',result.name)
-
-        Toastify({
-          text: result.message || 'Signup successful!',
-          duration: 3000,
-          gravity: "top",
-          position: "right",
-          backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
-        }).showToast();
-
-        this.router.navigate(['/dashboard']);
-      } else {
-        // Show backend error message in toast
-        Toastify({
-          text: result.message || 'Signup failed. Please try again.',
-          duration: 4000,
-          gravity: "top",
-          position: "right",
-          backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
-        }).showToast();
-      }
-    },
-    error: (err) => {
-      this.isLoading = false;
-
-      const errorMessage = err.error?.message || 'Something went wrong! Please try again.';
-
-      Toastify({
-        text: errorMessage,
-        duration: 4000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
-      }).showToast();
-
-      console.error('Signup error:', err);
-    }
-  });
-}
-
-
   private markFormGroupTouched() {
-    Object.keys(this.signupData.controls).forEach(key => {
+    Object.keys(this.signupData.controls).forEach((key) => {
       const control = this.signupData.get(key);
       control?.markAsTouched();
     });
@@ -233,7 +234,7 @@ export class SignupComponent implements OnInit {
     const labels: { [key: string]: string } = {
       name: 'Full name',
       email: 'Email',
-      password: 'Password'
+      password: 'Password',
     };
     return labels[fieldName] || fieldName;
   }
@@ -246,7 +247,7 @@ export class SignupComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  onSocialSignup(provider: string) {
-    alert(`${provider} signup will be implemented soon!`);
+  onGoogleSignUp() {
+    window.location.href = 'http://localhost:3600/api/auth/google';
   }
 }
