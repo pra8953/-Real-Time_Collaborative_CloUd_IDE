@@ -8,8 +8,8 @@
         <p class="text-gray-600 dark:text-gray-400 text-sm">Manage and organize your development projects</p>
       </div>
       <button 
-        (click)="createNewProject()"
-        class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm whitespace-nowrap w-full sm:w-auto">
+        [routerLink]="['/dashboard/create-project']"
+        class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm whitespace-nowrap w-full sm:w-auto">
         <i class="fas fa-plus mr-2"></i>
         Create New Project
       </button>
@@ -19,7 +19,7 @@
   <!-- Welcome Message -->
   <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 mb-6">
     <div class="flex flex-col md:flex-row md:items-start gap-4">
-      <div class="flex-shrink-0">
+      <div class="shrink-0">
         <i class="fas fa-rocket text-2xl text-pink-500"></i>
       </div>
       <div class="flex-1">
@@ -30,7 +30,7 @@
         <div class="flex flex-col sm:flex-row gap-3">
           <button 
             (click)="createNewProject()"
-            class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
+            class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
             <i class="fas fa-plus mr-2"></i>
             Create New Project
           </button>
@@ -56,7 +56,7 @@
           <!-- Left Content -->
           <div class="flex items-start gap-4 flex-1">
             <!-- Project Icon -->
-            <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 flex-shrink-0">
+            <div class="w-8 h-8 bg-linear-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0">
               <i class="fas fa-folder text-white text-lg"></i>
             </div>
             
@@ -149,7 +149,7 @@
                       <div class="flex -space-x-1">
                         <div 
                           *ngFor="let collaborator of project.collaborators.slice(0, 3)" 
-                          class="w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 border-2 border-white dark:border-gray-900 flex items-center justify-center text-white text-xs font-bold">
+                          class="w-6 h-6 rounded-full bg-linear-to-r from-pink-500 to-purple-600 border-2 border-white dark:border-gray-900 flex items-center justify-center text-white text-xs font-bold">
                           {{ collaborator.charAt(0) }}
                         </div>
                         <div 
@@ -173,7 +173,7 @@
             </button>
             <button 
               (click)="openProject(project)"
-              class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm order-1 lg:order-2 whitespace-nowrap">
+              class="px-4 py-2 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm order-1 lg:order-2 whitespace-nowrap">
               <i class="fas fa-arrow-right mr-1"></i>
               Open
             </button>
@@ -194,9 +194,10 @@
     </p>
     <button 
       (click)="createNewProject()"
-      class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
+      class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
       <i class="fas fa-plus mr-2"></i>
       Create Your First Project
     </button>
   </div>
 </div>
+

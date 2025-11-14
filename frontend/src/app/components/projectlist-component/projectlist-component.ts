@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
+import { MeslistComponent } from "../meslist-component/meslist-component";
+import { RouterLink } from "@angular/router";
 
 interface Project {
   id: number;
@@ -16,7 +18,7 @@ interface Project {
 
 @Component({
   selector: 'app-projectlist-component',
-  imports: [CommonModule],
+  imports: [CommonModule,  RouterLink],
   templateUrl: './projectlist-component.html',
   styleUrl: './projectlist-component.css',
 })

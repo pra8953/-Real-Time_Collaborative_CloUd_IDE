@@ -1,4 +1,3 @@
-// controllers/auth/googleAuthController.js
 const jwt = require("jsonwebtoken");
 
 const googleAuthCallback = (req, res) => {
@@ -10,7 +9,15 @@ const googleAuthCallback = (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign(
+      { id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+       }
+      , process.env.JWT_SECRET,
+      
+      
+      {
       expiresIn: "24h",
     });
 

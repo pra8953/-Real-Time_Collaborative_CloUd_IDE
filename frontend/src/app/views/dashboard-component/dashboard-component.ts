@@ -1,11 +1,12 @@
 import { Component,HostListener } from '@angular/core';
 import { NavbarComponent } from '../../components/navbar-component/navbar-component';
 import { SidenavbarComponent } from '../../components/sidenavbar-component/sidenavbar-component';
-import { ProjectlistComponent } from '../../components/projectlist-component/projectlist-component';
-import { MeslistComponent } from '../../components/meslist-component/meslist-component';
+
+import { RouterOutlet } from "@angular/router";
+import { MeslistComponent } from "../../components/meslist-component/meslist-component";
 @Component({
   selector: 'app-dashboard-component',
-  imports: [NavbarComponent,SidenavbarComponent,ProjectlistComponent,MeslistComponent],
+  imports: [NavbarComponent, SidenavbarComponent, RouterOutlet, MeslistComponent],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })

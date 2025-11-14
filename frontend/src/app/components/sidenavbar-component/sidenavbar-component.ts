@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ProjectService } from '../../core/services/project';
 
 declare var Toastify: any;
 
@@ -17,26 +18,19 @@ interface Project {
   styleUrl: './sidenavbar-component.css',
 })
 export class SidenavbarComponent {
+
+  constructor(private projectService:ProjectService){};
+
   userEmail = localStorage.getItem('email');
   name = localStorage.getItem('name');
+
   searchQuery: string = '';
   showMoreVisible: boolean = true;
   isSidebarOpen = false;
   isShowingAll = false;
   router = inject(Router);
 
-  projects: Project[] = [
-    { name: 'GeeksForGeeks160dayChallenge', icon: 'folder' },
-    { name: 'my_video_tracker_xblock', icon: 'folder' },
-    { name: 'DSA_With_lava', icon: 'folder' },
-    { name: 'BookYourRide', icon: 'folder' },
-    { name: 'Uphaar', icon: 'folder' },
-    { name: 'MAANG-Most-askDSA-Question', icon: 'folder' },
-    { name: 'Raj85446696', icon: 'folder' },
-    { name: 'React-Dashboard', icon: 'folder' },
-    { name: 'E-commerce-API', icon: 'folder' },
-    { name: 'Portfolio-2024', icon: 'folder' }
-  ];
+  projects: Project[] = [];
 
   filteredProjects: Project[] = [...this.projects];
 
@@ -50,12 +44,27 @@ export class SidenavbarComponent {
   }
 
   ngOnInit() {
-    this.filteredProjects = [...this.projects];
-    // Open sidebar on desktop by default
-    if (window.innerWidth >= 768) {
-      this.isSidebarOpen = true;
+  this.projectService.getProjects().subscribe({
+    next: (result: any) => {
+      const backendProjects = result.data;
+      console.log(result);
+      // sirf name pick karna hai:
+      this.projects = backendProjects.map((proj: any) => ({
+        name: proj.name,
+        icon: 'folder'   // optional icon
+      }));
+
+      this.filteredProjects = [...this.projects];
+
+      console.log(this.projects);
     }
+  });
+
+  if (window.innerWidth >= 768) {
+    this.isSidebarOpen = true;
   }
+}
+
 
   filterProjects() {
     if (!this.searchQuery) {

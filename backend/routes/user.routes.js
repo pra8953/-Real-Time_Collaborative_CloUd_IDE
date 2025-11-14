@@ -4,6 +4,7 @@ const {
   loginValidation,
   signupValidation,
 } = require("./../validators/authValidator");
+
 router.post("/login", loginValidation, login);
 router.post("/signup", signupValidation, signup);
 
