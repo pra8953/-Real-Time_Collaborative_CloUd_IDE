@@ -1,120 +1,175 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
-import { MeslistComponent } from "../meslist-component/meslist-component";
+import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterLink } from "@angular/router";
+import { ProjectService } from '../../core/services/project';
 
 interface Project {
-  id: number;
+  id: string;
   name: string;
   type: string;
   description: string;
   status: 'active' | 'draft' | 'archived';
   createdAt: Date;
   updatedAt: Date;
-  branches: number;
-  commits: number;
   collaborators: string[];
+  progress: number;
+  files: any[];
+  owner: string;
 }
 
 @Component({
   selector: 'app-projectlist-component',
-  imports: [CommonModule,  RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './projectlist-component.html',
   styleUrl: './projectlist-component.css',
 })
-export class ProjectlistComponent {
-  projects: Project[] = [
-    {
-      id: 1,
-      name: 'E-commerce Platform',
-      type: 'Web Application',
-      description: 'A full-stack e-commerce solution with React frontend and Node.js backend',
-      status: 'active',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-11-08'),
-      branches: 3,
-      commits: 142,
-      collaborators: ['John', 'Sarah', 'Mike', 'Emma']
-    },
-    {
-      id: 2,
-      name: 'Mobile Banking App',
-      type: 'Mobile Application',
-      description: 'Cross-platform mobile banking application built with Flutter',
-      status: 'active',
-      createdAt: new Date('2024-02-20'),
-      updatedAt: new Date('2024-11-09'),
-      branches: 2,
-      commits: 89,
-      collaborators: ['Alex', 'Lisa']
-    },
-    {
-      id: 3,
-      name: 'AI Chatbot',
-      type: 'Machine Learning',
-      description: 'Intelligent chatbot using natural language processing and machine learning',
-      status: 'draft',
-      createdAt: new Date('2024-03-10'),
-      updatedAt: new Date('2024-11-05'),
-      branches: 1,
-      commits: 56,
-      collaborators: ['David']
-    },
-    {
-      id: 4,
-      name: 'Portfolio Website',
-      type: 'Static Website',
-      description: 'Personal portfolio website showcasing projects and skills',
-      status: 'active',
-      createdAt: new Date('2024-01-05'),
-      updatedAt: new Date('2024-11-07'),
-      branches: 1,
-      commits: 34,
-      collaborators: ['You']
-    },
-    {
-      id: 5,
-      name: 'Task Management Tool',
-      type: 'Web Application',
-      description: 'Collaborative task management tool with real-time updates',
-      status: 'archived',
-      createdAt: new Date('2023-12-01'),
-      updatedAt: new Date('2024-10-15'),
-      branches: 4,
-      commits: 210,
-      collaborators: ['Tom', 'Jerry', 'Alice', 'Bob', 'Charlie']
-    },
-    {
-      id: 6,
-      name: 'Data Analytics Dashboard',
-      type: 'Dashboard',
-      description: 'Real-time data visualization and analytics dashboard',
-      status: 'active',
-      createdAt: new Date('2024-04-18'),
-      updatedAt: new Date('2024-11-09'),
-      branches: 2,
-      commits: 78,
-      collaborators: ['Eva', 'Frank', 'Grace']
-    }
-  ];
+export class ProjectlistComponent implements OnInit {
 
-  // Mobile state management
-  isMobile = false;
+  constructor(private projectService: ProjectService) {}
+
+  projects: Project[] = [];
+  isLoading: boolean = true;
+  isMobile: boolean = false;
+  showDropdown: string | null = null; // Track which project's dropdown is open
 
   @HostListener('window:resize')
   onWindowResize() {
     this.checkMobile();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    // Close dropdown when clicking outside
+    if (!(event.target as Element).closest('.dropdown-container')) {
+      this.showDropdown = null;
+    }
+  }
+
   ngOnInit() {
     this.checkMobile();
+    this.loadProjects();
+  }
+
+  private loadProjects() {
+    this.isLoading = true;
+    
+    this.projectService.getProjects().subscribe({
+      next: (result: any) => {
+        if (result.success) {
+          console.log('API Response:', result.data);
+          this.projects = this.transformApiData(result.data);
+        } else {
+          this.projects = [];
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading projects:', error);
+        this.projects = [];
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private transformApiData(apiData: any[]): Project[] {
+    if (!apiData || !Array.isArray(apiData)) {
+      return [];
+    }
+
+    return apiData.map(project => {
+      // Map API status number to string status
+      const statusMap: { [key: number]: 'active' | 'draft' | 'archived' } = {
+        1: 'active',
+        2: 'draft', 
+        3: 'archived'
+      };
+
+      const collaborators = project.collaborators && project.collaborators.length > 0 
+        ? project.collaborators 
+        : ['You'];
+      
+      const progress = this.calculateProgress(project);
+
+      return {
+        id: project._id || project.id,
+        name: project.name || 'Untitled Project',
+        type: project.description || '',
+        description: project.description || 'No description available',
+        status: statusMap[project.status] || 'draft',
+        createdAt: new Date(project.createdAt),
+        updatedAt: new Date(project.updatedAt),
+        collaborators: collaborators,
+        progress: progress,
+        files: project.files || [],
+        owner: project.owner || ''
+      };
+    });
+  }
+
+  private calculateProgress(project: any): number {
+    let progress = 0;
+    
+    // Base progress on status
+    if (project.status === 1) progress += 40; // active
+    else if (project.status === 2) progress += 20; // draft
+    
+    // Progress based on description length (more detailed = more complete)
+    if (project.description && project.description.length > 50) progress += 20;
+    else if (project.description && project.description.length > 20) progress += 10;
+    
+    // Progress based on collaborators
+    if (project.collaborators && project.collaborators.length > 1) progress += 20;
+    
+    // Progress based on files
+    if (project.files && project.files.length > 0) progress += 20;
+    
+    return Math.min(progress, 100);
   }
 
   private checkMobile() {
     this.isMobile = window.innerWidth < 768;
   }
 
-  // Format date for display
+  // Toggle dropdown menu
+  toggleDropdown(projectId: string, event: Event) {
+    event.stopPropagation();
+    this.showDropdown = this.showDropdown === projectId ? null : projectId;
+  }
+
+  // Close dropdown
+  closeDropdown() {
+    this.showDropdown = null;
+  }
+
+  // Change project status
+  changeStatus(project: Project, newStatus: 'draft' | 'archived' | 'active', event: Event) {
+    event.stopPropagation();
+    console.log(`Changing project ${project.name} status to:`, newStatus);
+    
+    // Update local project status
+    project.status = newStatus;
+    
+   
+    
+    this.closeDropdown();
+  }
+
+  // Edit project
+  editProject(project: Project, event: Event) {
+    event.stopPropagation();
+    console.log('Editing project:', project.name);
+    // Implement edit logic - open edit modal or navigate to edit page
+    this.closeDropdown();
+  }
+
+  // Add collaborator
+  addCollaborator(project: Project, event: Event) {
+    event.stopPropagation();
+    console.log('Adding collaborator to project:', project.name);
+    // Implement add collaborator logic - open modal or form
+    this.closeDropdown();
+  }
+
   formatDate(date: Date): string {
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
@@ -123,7 +178,6 @@ export class ProjectlistComponent {
     });
   }
 
-  // Get relative time for updated date
   getRelativeTime(date: Date): string {
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
@@ -139,13 +193,28 @@ export class ProjectlistComponent {
     }
   }
 
-  createNewProject() {
-    console.log('Create new project clicked');
-    // Implement project creation logic
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'active': return 'fas fa-play-circle';
+      case 'draft': return 'fas fa-edit';
+      case 'archived': return 'fas fa-archive';
+      default: return 'fas fa-folder';
+    }
+  }
+
+  getProgressColor(progress: number): string {
+    if (progress >= 80) return 'bg-green-500';
+    if (progress >= 60) return 'bg-blue-500';
+    if (progress >= 40) return 'bg-yellow-500';
+    return 'bg-red-500';
   }
 
   openProject(project: Project) {
     console.log('Opening project:', project.name);
-    // Implement project opening logic
+    // Navigate to project detail page
+  }
+
+  getCollaboratorInitials(name: string): string {
+    return name.charAt(0).toUpperCase();
   }
 }

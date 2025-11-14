@@ -29,7 +29,7 @@
         </p>
         <div class="flex flex-col sm:flex-row gap-3">
           <button 
-            (click)="createNewProject()"
+            routerLink="/dashboard/create-project"
             class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
             <i class="fas fa-plus mr-2"></i>
             Create New Project
@@ -83,16 +83,6 @@
               <div class="lg:hidden space-y-3 mb-4">
                 <!-- Stats Row -->
                 <div class="flex items-center justify-between text-sm">
-                  <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
-                      <i class="fas fa-code-branch text-pink-500 w-4"></i>
-                      <span>{{ project.branches }}</span>
-                    </div>
-                    <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
-                      <i class="fas fa-code text-pink-500 w-4"></i>
-                      <span>{{ project.commits }}</span>
-                    </div>
-                  </div>
                   <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
                     <i class="fas fa-users text-pink-500 w-4"></i>
                     <span>{{ project.collaborators.length }}</span>
@@ -108,18 +98,6 @@
 
               <!-- Project Meta - Desktop -->
               <div class="hidden lg:grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
-                <!-- Stats -->
-                <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
-                    <i class="fas fa-code-branch text-pink-500 w-4"></i>
-                    <span class="font-medium">{{ project.branches }} Branches</span>
-                  </div>
-                  <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
-                    <i class="fas fa-code text-pink-500 w-4"></i>
-                    <span class="font-medium">{{ project.commits }} Commits</span>
-                  </div>
-                </div>
-
                 <!-- Timestamps -->
                 <div class="space-y-2">
                   <div class="flex items-center gap-2 text-gray-700 dark:text-gray-300 text-sm">
@@ -167,12 +145,69 @@
           </div>
 
           <!-- Right Actions -->
-          <div class="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start gap-2 lg:gap-2 lg:ml-4">
-            <button class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 order-2 lg:order-1">
-              <i class="fas fa-ellipsis-v"></i>
-            </button>
+          <div class="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start gap-2 lg:gap-2 lg:ml-4 dropdown-container">
+            <!-- Dropdown Menu -->
+            <div class="relative">
+              <button 
+                (click)="toggleDropdown(project.id, $event)"
+                class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 order-2 lg:order-1 dropdown-container">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              
+              <!-- Dropdown Content -->
+              <div 
+                *ngIf="showDropdown === project.id"
+                class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-10 dropdown-container">
+                <div class="py-1">
+                  <!-- Status Change Options -->
+                  <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+                    Change Status
+                  </div>
+                  
+                  <button 
+                    (click)="changeStatus(project, 'draft', $event)"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    <i class="fas fa-edit w-4 text-yellow-500"></i>
+                    <span>Mark as Draft</span>
+                  </button>
+                  
+                  <button 
+                    (click)="changeStatus(project, 'archived', $event)"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    <i class="fas fa-archive w-4 text-gray-500"></i>
+                    <span>Move to Archived</span>
+                  </button>
+
+                  <button 
+                    (click)="changeStatus(project, 'active', $event)"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    <i class="fas fa-play-circle w-4 text-green-500"></i>
+                    <span>Set as Active</span>
+                  </button>
+
+                  <!-- Divider -->
+                  <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+
+                  <!-- Other Actions -->
+                  <button 
+                    (click)="editProject(project, $event)"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    <i class="fas fa-edit w-4 text-blue-500"></i>
+                    <span>Edit Project</span>
+                  </button>
+                  
+                  <button 
+                    (click)="addCollaborator(project, $event)"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    <i class="fas fa-user-plus w-4 text-green-500"></i>
+                    <span>Add Collaborator</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <button 
-              (click)="openProject(project)"
+              routerLink="/dashboard/project_ide"
               class="px-4 py-2 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm order-1 lg:order-2 whitespace-nowrap">
               <i class="fas fa-arrow-right mr-1"></i>
               Open
@@ -193,11 +228,10 @@
       It looks like you haven't created any projects yet. Start your journey by creating your first project!
     </p>
     <button 
-      (click)="createNewProject()"
+      routerLink="/dashboard/create-project"
       class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
       <i class="fas fa-plus mr-2"></i>
       Create Your First Project
     </button>
   </div>
 </div>
-

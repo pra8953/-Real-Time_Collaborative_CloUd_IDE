@@ -1,0 +1,59 @@
+.editor-container {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.code-editor {
+  font-family: 'Courier New', monospace;
+  tab-size: 2;
+}
+
+.unsaved-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #4f4f4f;
+}
+
+/* File item hover effects */
+.file-item {
+  transition: all 0.2s ease;
+}
+
+.file-item:hover {
+  background-color: #2a2d2e;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .editor-actions {
+    justify-content: flex-start;
+  }
+  
+  .tab {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
