@@ -1,29 +1,28 @@
+/* Editor Colors */
+:host {
+  --editor-dark: #1e1e1e;
+  --editor-sidebar: #252526;
+  --editor-border: #3e3e42;
+  --editor-hover: #2a2d2e;
+  --editor-tab: #2d2d30;
+  --editor-primary: #007acc;
+  --editor-success: #28a745;
+  --editor-warning: #ffc107;
+  --editor-purple: #6f42c1;
+}
+
+/* Base Styles */
 .editor-container {
-  height: 100vh;
-  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.code-editor {
-  font-family: 'Courier New', monospace;
-  tab-size: 2;
-}
-
-.unsaved-indicator {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* Custom scrollbar */
+/* Scrollbar Styling */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #1e1e1e;
+  background: var(--editor-sidebar);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -35,25 +34,213 @@
   background: #4f4f4f;
 }
 
-/* File item hover effects */
+/* File List Styles */
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
 .file-item {
+  border-left-width: 4px;
   transition: all 0.2s ease;
 }
 
 .file-item:hover {
-  background-color: #2a2d2e;
+  background-color: var(--editor-hover);
 }
 
-/* Responsive design adjustments */
+/* Code Editor */
+.code-editor {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Monaco Editor Overrides */
+.monaco-editor {
+  border-radius: 8px;
+  width: 100% !important;
+}
+
+.monaco-editor .overflow-guard {
+  width: 100% !important;
+}
+
+/* Button Styles */
+button {
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* Unsaved Changes Indicator */
+.unsaved-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  background: linear-gradient(135deg, var(--editor-dark) 0%, #2d2d30 100%);
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .editor-actions {
-    justify-content: flex-start;
+  .editor-container {
+    flex-direction: column;
   }
   
-  .tab {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .w-60 {
+    width: 100%;
+    height: 300px;
   }
+  
+  .editor-actions {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  
+  .tabs {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Loading States */
+.code-editor:empty::before {
+  content: "Loading editor...";
+  color: #888;
+  padding: 20px;
+  display: block;
+}
+
+/* Focus Styles */
+input:focus, button:focus {
+  outline: 2px solid var(--editor-primary);
+  outline-offset: 2px;
+}
+
+/* Animation for modal */
+.fixed {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* File Icons */
+.file-icon {
+  font-size: 14px;
+}
+
+/* Status Indicators */
+.save-status {
+  font-style: italic;
+}
+
+/* Monaco Editor Customization */
+.monaco-editor .margin {
+  background-color: var(--editor-sidebar) !important;
+}
+
+/* Custom selection colors */
+::selection {
+  background-color: var(--editor-primary);
+  color: white;
+}
+
+/* Smooth transitions for all interactive elements */
+button, .file-item, input {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover effects */
+.hover\\:bg-blue-600:hover {
+  transform: translateY(-1px);
+}
+
+.hover\\:bg-editor-hover:hover {
+  transform: translateX(2px);
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .text-6xl {
+    font-size: 3rem;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  
+  .p-8 {
+    padding: 1.5rem;
+  }
+}
+
+/* Dark theme improvements */
+.bg-editor-dark {
+  background-color: var(--editor-dark);
+}
+
+.bg-editor-sidebar {
+  background-color: var(--editor-sidebar);
+}
+
+.border-editor-border {
+  border-color: var(--editor-border);
+}
+
+.bg-editor-hover {
+  background-color: var(--editor-hover);
+}
+
+.bg-editor-tab {
+  background-color: var(--editor-tab);
+}
+
+.bg-editor-primary {
+  background-color: var(--editor-primary);
+}
+
+.bg-editor-success {
+  background-color: var(--editor-success);
+}
+
+.bg-editor-warning {
+  background-color: var(--editor-warning);
+}
+
+.bg-editor-purple {
+  background-color: var(--editor-purple);
+}
+
+/* Full width editor fixes */
+.min-w-0 {
+  min-width: 0;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Ensure Monaco editor takes full available width */
+.monaco-editor {
+  width: 100% !important;
+}
+
+.monaco-editor .monaco-editor-background {
+  width: 100% !important;
+}
+
+.monaco-editor .view-lines {
+  width: 100% !important;
 }

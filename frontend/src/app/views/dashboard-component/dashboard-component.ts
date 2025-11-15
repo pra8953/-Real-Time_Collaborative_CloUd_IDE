@@ -6,7 +6,7 @@ import { RouterOutlet } from "@angular/router";
 import { MeslistComponent } from "../../components/meslist-component/meslist-component";
 @Component({
   selector: 'app-dashboard-component',
-  imports: [NavbarComponent, SidenavbarComponent, RouterOutlet, MeslistComponent],
+  imports: [NavbarComponent, SidenavbarComponent, RouterOutlet],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })

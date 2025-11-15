@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProjectService } from '../../core/services/project';
 
 declare var Toastify: any;
@@ -13,23 +13,24 @@ interface Project {
 
 @Component({
   selector: 'app-sidenavbar-component',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './sidenavbar-component.html',
-  styleUrl: './sidenavbar-component.css',
+  styleUrls: ['./sidenavbar-component.css']
 })
-export class SidenavbarComponent {
+export class SidenavbarComponent implements OnInit {
+  private projectService = inject(ProjectService);
+  private router = inject(Router);
 
-  constructor(private projectService:ProjectService){};
-
-  userEmail = localStorage.getItem('email');
-  name = localStorage.getItem('name');
-
+  userEmail = localStorage.getItem('email') || 'user@example.com';
+  name = localStorage.getItem('name') || 'User';
+  
   searchQuery: string = '';
-  showMoreVisible: boolean = true;
   isSidebarOpen = false;
+  isSidebarCollapsed = false;
   isShowingAll = false;
-  router = inject(Router);
-
+  isMobile = false;
+ 
   projects: Project[] = [];
 
   filteredProjects: Project[] = [...this.projects];
@@ -44,27 +45,29 @@ export class SidenavbarComponent {
   }
 
   ngOnInit() {
-  this.projectService.getProjects().subscribe({
-    next: (result: any) => {
-      const backendProjects = result.data;
-      console.log(result);
-      // sirf name pick karna hai:
-      this.projects = backendProjects.map((proj: any) => ({
-        name: proj.name,
-        icon: 'folder'   // optional icon
-      }));
+    this.checkScreenSize();
+    
+ 
+  
+    this.projectService.getProjects().subscribe({
+      next: (result: any) => {
+        const backendProjects = result.data;
+        this.projects = backendProjects.map((proj: any) => ({
+          name: proj.name,
+          icon: 'folder'
+        }));
+        this.filteredProjects = [...this.projects];
+      },
+      error: (error) => {
+        console.error('Error fetching projects:', error);
+      }
+    });
+    
 
-      this.filteredProjects = [...this.projects];
-
-      console.log(this.projects);
+    if (!this.isMobile) {
+      this.isSidebarOpen = true;
     }
-  });
-
-  if (window.innerWidth >= 768) {
-    this.isSidebarOpen = true;
   }
-}
-
 
   filterProjects() {
     if (!this.searchQuery) {
@@ -86,12 +89,12 @@ export class SidenavbarComponent {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
-  closeSidebar() {
-    this.isSidebarOpen = false;
+  toggleCollapse() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 
-  createNewProject() {
-    console.log('Create new project clicked');
+  closeSidebar() {
+    this.isSidebarOpen = false;
   }
 
   logout() {
@@ -106,10 +109,17 @@ export class SidenavbarComponent {
     this.router.navigateByUrl('/');
   }
 
+  private checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
+    if (this.isMobile) {
+      this.isSidebarCollapsed = false;
+    }
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    if (this.isSidebarOpen && window.innerWidth < 768) {
+    if (this.isSidebarOpen && this.isMobile) {
       if (!target.closest('.sidebar') && !target.closest('.mobile-toggle-btn')) {
         this.closeSidebar();
       }
@@ -118,17 +128,19 @@ export class SidenavbarComponent {
 
   @HostListener('document:keydown.escape')
   onEscapeKey() {
-    if (this.isSidebarOpen && window.innerWidth < 768) {
+    if (this.isSidebarOpen && this.isMobile) {
       this.closeSidebar();
     }
   }
 
   @HostListener('window:resize')
   onWindowResize() {
-    if (window.innerWidth >= 768) {
-      this.isSidebarOpen = true;
-    } else {
+    this.checkScreenSize();
+    if (this.isMobile) {
       this.isSidebarOpen = false;
+      this.isSidebarCollapsed = false;
+    } else {
+      this.isSidebarOpen = true;
     }
   }
 }

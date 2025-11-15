@@ -1,0 +1,93 @@
+/* Custom Animation Classes */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  33% { 
+    transform: translateY(-3px) rotate(2deg); 
+  }
+  66% { 
+    transform: translateY(2px) rotate(-2deg); 
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-2px) rotate(-2deg); }
+  50% { transform: translateX(2px) rotate(2deg); }
+  75% { transform: translateX(-1px) rotate(-1deg); }
+}
+
+@keyframes crazy-move {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  20% { transform: translate(-2px, -2px) rotate(-5deg) scale(1.1); }
+  40% { transform: translate(2px, 2px) rotate(5deg) scale(0.9); }
+  60% { transform: translate(-1px, 1px) rotate(-3deg) scale(1.05); }
+  80% { transform: translate(1px, -1px) rotate(3deg) scale(0.95); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(-1px, -1px); }
+  60% { transform: translate(1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes bounce-rotate {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg) scale(1); 
+  }
+  25% { 
+    transform: translateY(-4px) rotate(-5deg) scale(1.1); 
+  }
+  50% { 
+    transform: translateY(0) rotate(0deg) scale(1); 
+  }
+  75% { 
+    transform: translateY(-2px) rotate(5deg) scale(1.05); 
+  }
+}
+
+@keyframes wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+  75% { transform: rotate(-1deg); }
+}
+
+/* Animation Classes */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+.animate-crazy-move {
+  animation: crazy-move 2s ease-in-out infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out infinite;
+}
+
+.animate-bounce-rotate {
+  animation: bounce-rotate 2s ease-in-out infinite;
+}
+
+.animate-wobble {
+  animation: wobble 1s ease-in-out infinite;
+}
+
+/* Hover specific animations */
+.hover\:animate-float:hover {
+  animation: float 2s ease-in-out infinite;
+}
+
+.hover\:animate-shake:hover {
+  animation: shake 0.3s ease-in-out infinite;
+}

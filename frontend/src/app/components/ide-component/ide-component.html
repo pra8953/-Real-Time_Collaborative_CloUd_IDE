@@ -1,6 +1,6 @@
-<div class="editor-container flex flex-col md:flex-row h-screen bg-editor-dark text-white">
+<div class="editor-container flex h-screen bg-editor-dark text-white">
   <!-- Sidebar -->
-  <div class="w-full md:w-80 bg-editor-sidebar border-r border-editor-border flex flex-col">
+  <div class="w-60 bg-editor-sidebar border-r border-editor-border flex flex-col flex-shrink-0">
     <!-- Sidebar Header -->
     <div class="p-4 border-b border-editor-border flex justify-between items-center">
       <h3 class="font-semibold text-sm">
@@ -8,7 +8,7 @@
       </h3>
       <button 
         class="bg-editor-primary text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-blue-600 transition-colors"
-        >
+        (click)="createFile()">
         <i class="fas fa-plus"></i> New File
       </button>
     </div>
@@ -19,22 +19,23 @@
         <h4 class="text-gray-300 mb-4">Create New File</h4>
         <input
           type="text"
-         
+          [(ngModel)]="newFileName"
           placeholder="filename.html"
           class="w-full p-3 bg-gray-700 border border-gray-600 rounded text-gray-300 mb-4 focus:outline-none focus:border-editor-primary"
-         
+          (keyup.enter)="confirmCreateFile()"
+          (keyup.escape)="cancelCreateFile()"
           #fileNameInput
           autofocus
         />
         <div class="flex justify-end gap-2">
           <button
             class="bg-editor-primary text-white px-4 py-2 rounded text-sm hover:bg-blue-600 transition-colors"
-            >
+            (click)="confirmCreateFile()">
             Create
           </button>
           <button
             class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-500 transition-colors"
-            >
+            (click)="cancelCreateFile()">
             Cancel
           </button>
         </div>
@@ -44,16 +45,16 @@
     <!-- Files List -->
     <div class="flex-1 overflow-y-auto custom-scrollbar py-2">
       <div class="px-4 py-2 text-xs text-gray-400 font-semibold uppercase tracking-wide">
-        WORKSPACE FILES 
+        WORKSPACE FILES ({{files.length}})
       </div>
       <ul class="file-list">
         <li
           *ngFor="let file of files"
-         
-          [class]="'file-item flex items-center px-4 py-2 cursor-pointer transition-colors border-l-4 '
-                  ">
+          (click)="selectFile(file)"
+          [class]="'file-item flex items-center px-4 py-2 cursor-pointer transition-colors border-l-4 ' + 
+                  (selectedFile?.id === file.id ? 'border-editor-primary bg-editor-hover' : 'border-transparent hover:bg-editor-hover')">
           <span class="mr-2 text-sm">
-            <i ></i>
+            {{ getFileIcon(file.name) }}
           </span>
           <span class="flex-1 text-sm text-gray-300 truncate">{{ file.name }}</span>
           <div class="flex items-center gap-2">
@@ -65,7 +66,7 @@
             </span>
             <span
               class="text-red-400 cursor-pointer hover:bg-red-500 hover:text-white rounded px-1 transition-colors"
-             
+              (click)="deleteFile(file.id, $event)"
               title="Delete File">
               ×
             </span>
@@ -75,16 +76,16 @@
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="flex-1 flex flex-col bg-editor-dark">
+  <!-- Main Content - Takes remaining space -->
+  <div class="flex-1 flex flex-col bg-editor-dark min-w-0">
     <!-- Editor Header -->
     <div *ngIf="selectedFile" class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-editor-tab border-b border-editor-border gap-2">
       <div class="tabs flex items-center">
         <div class="tab flex items-center gap-2 px-3 py-1.5 bg-editor-dark rounded text-sm text-gray-300">
           <span>
-           
+            {{ getFileIcon(selectedFile.name) }}
           </span>
-         
+          {{ selectedFile.name }}
           <span 
             *ngIf="hasUnsavedChanges()" 
             class="unsaved-indicator text-yellow-500 text-lg">
@@ -98,60 +99,45 @@
           class="text-xs text-yellow-500 italic">
           Unsaved changes
         </span>
+        
+        <!-- Browser Preview Button -->
+        <button 
+          class="bg-editor-purple text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-purple-700 transition-colors"
+          (click)="openBrowserPreview()">
+          <i class="fas fa-external-link-alt"></i> 
+          Browser Preview
+        </button>
+        
         <button 
           class="bg-editor-success text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-green-600 transition-colors"
-          >
+          (click)="runCode()">
           <i class="fas fa-play"></i> Run
         </button>
         <button 
           class="bg-editor-warning text-gray-800 px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-yellow-500 transition-colors"
-          >
+          (click)="saveFile()">
           <i class="fas fa-save"></i> Save
         </button>
         <button 
           class="bg-editor-purple text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-purple-700 transition-colors"
-          >
+          (click)="formatCode()">
           <i class="fas fa-magic"></i> Format
         </button>
       </div>
     </div>
 
-    <!-- Editor Area -->
-    <div *ngIf="selectedFile" class="flex-1 flex flex-col">
-      <!-- Code Editor -->
-      <div class="flex-1 p-4 overflow-auto">
-        <div class="code-editor bg-gray-800 rounded-lg p-4 text-gray-200 h-full overflow-auto font-mono text-sm">
-          <pre></pre>
-        </div>
-      </div>
-      
-      <!-- Output Section -->
-      <div class="h-80 border-t border-editor-border flex flex-col">
-        <div class="flex justify-between items-center p-3 bg-editor-sidebar border-b border-editor-border">
-          <h4 class="font-medium text-sm">
-            <i class="fas fa-desktop mr-2"></i>OUTPUT PREVIEW
-          </h4>
-          <div class="output-actions flex gap-2">
-            <button 
-              class="bg-gray-600 text-white px-2 py-1 rounded text-xs hover:bg-gray-500 transition-colors"
-              >
-              <i class="fas fa-redo mr-1"></i> Run
-            </button>
-            <button 
-              class="bg-gray-600 text-white px-2 py-1 rounded text-xs hover:bg-gray-500 transition-colors"
-              >
-              <i class="fas fa-trash mr-1"></i> Clear
-            </button>
-          </div>
-        </div>
-        <div class="flex-1 bg-white overflow-auto">
-          <div class="h-full"></div>
+    <!-- Editor Area - Full Width -->
+    <div *ngIf="selectedFile" class="flex-1 flex flex-col min-w-0">
+      <!-- Code Editor - Full width always -->
+      <div class="flex-1 p-4 overflow-auto min-w-0">
+        <div #editorContainer class="code-editor bg-gray-800 rounded-lg h-full overflow-hidden font-mono w-full">
+          <!-- Monaco Editor will be loaded here -->
         </div>
       </div>
     </div>
 
     <!-- Welcome Screen -->
-    <div *ngIf="!selectedFile" class="flex-1 flex items-center justify-center bg-editor-dark">
+    <div *ngIf="!selectedFile" class="flex-1 flex items-center justify-center bg-editor-dark min-w-0">
       <div class="text-center max-w-md p-8">
         <div class="text-6xl mb-6">💻</div>
         <h1 class="text-2xl font-bold text-gray-300 mb-4">Welcome to Code Editor</h1>
@@ -160,7 +146,7 @@
         </p>
         <button 
           class="bg-editor-primary text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors mx-auto"
-          >
+          (click)="createFile()">
           <i class="fas fa-plus"></i> Create New File
         </button>
 
@@ -172,10 +158,10 @@
           <div class="space-y-2">
             <div
               *ngFor="let file of files.slice(0, 5)"
-              class="recent-file flex items-center gap-3 p-3 bg-editor-sidebar rounded cursor-pointer hover:bg-editor-hover transition-colors"
-              >
+              (click)="selectFile(file)"
+              class="recent-file flex items-center gap-3 p-3 bg-editor-sidebar rounded cursor-pointer hover:bg-editor-hover transition-colors">
               <span class="text-sm">
-                <i ></i>
+                {{ getFileIcon(file.name) }}
               </span>
               <span class="text-gray-300 text-sm">{{ file.name }}</span>
             </div>

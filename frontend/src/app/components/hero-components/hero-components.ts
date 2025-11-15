@@ -1,6 +1,6 @@
-import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { trigger, transition, style, animate, keyframes, query, stagger } from '@angular/animations';
 
 @Component({
@@ -94,7 +94,8 @@ import { trigger, transition, style, animate, keyframes, query, stagger } from '
 export class HeroComponents implements OnInit {
   particles: any[] = [];
   floatingElements: any[] = [];
-  
+  router = inject(Router);
+  token = localStorage.getItem('token');
   stats = [
     { value: '5x', label: 'Faster Development', icon: '🚀' },
     { value: '99.9%', label: 'Uptime SLA', icon: '⚡' },
@@ -159,7 +160,11 @@ export class HeroComponents implements OnInit {
 
   onLaunchTerminal() {
     console.log('Launching CodeCollab Terminal...');
-    // Add terminal launch logic
+    if(!this.token){
+      this.router.navigateByUrl('/login');
+    }else{
+      this.router.navigateByUrl('/dashboard');
+    }
   }
 
   onOpenDocs() {

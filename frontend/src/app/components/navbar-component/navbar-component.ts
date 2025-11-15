@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -7,7 +7,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-navbar-component',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule,NgIf],
    templateUrl: './navbar-component.html',
   styleUrl: './navbar-component.css',
 

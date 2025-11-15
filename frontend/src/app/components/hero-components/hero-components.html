@@ -1,23 +1,18 @@
 <section class="hero-section text-white relative overflow-hidden">
     <!-- Main Background -->
     <div class="absolute inset-0 bg-linear-to-br from-gray-900 via-gray-900 to-black"></div>
-    
+
     <!-- Color Overlay -->
     <div class="absolute inset-0 bg-linear-to-r from-pink-900/10 via-purple-900/15 to-violet-900/10"></div>
-    
+
     <!-- Animated Grid Background -->
     <div class="absolute inset-0 bg-grid-pattern opacity-30"></div>
-    
+
     <!-- Floating Particles -->
-    <div 
-        class="particles-container absolute inset-0"
-        [@particleAnimation]="currentParticleState"
-    >
-        <div 
-            *ngFor="let particle of particles"
+    <div class="particles-container absolute inset-0" [@particleAnimation]="currentParticleState">
+        <div *ngFor="let particle of particles"
             class="particle absolute bg-linear-to-r from-pink-700 to-purple-700 rounded-full opacity-40"
-            [style]="getParticleStyle(particle)"
-        ></div>
+            [style]="getParticleStyle(particle)"></div>
     </div>
 
     <!-- Animated Orbs -->
@@ -26,16 +21,9 @@
     <div class="floating-orb orb-3"></div>
 
     <!-- Floating Code Elements -->
-    <div 
-        class="floating-elements-container"
-        [@floatAnimation]
-    >
-        <div 
-            *ngFor="let element of floatingElements"
-            class="floating-element"
-            [style]="getFloatingElementStyle(element)"
-            [class]="element.type"
-        >
+    <div class="floating-elements-container" [@floatAnimation]>
+        <div *ngFor="let element of floatingElements" class="floating-element"
+            [style]="getFloatingElementStyle(element)" [class]="element.type">
             {{ element.content }}
         </div>
     </div>
@@ -53,20 +41,22 @@
             <!-- Main Title -->
             <div [@titleAnimation] class="mb-8">
                 <h1 class="hero-title">
-                    Build 
+                    Build
                     <span class="gradient-flow-text">Faster</span>
                     <br class="hidden lg:block" />
-                    <span class="">with Code<span class="bg-linear-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">Collab</span> Pro</span>
+                    <span class="">with Code<span
+                            class="bg-linear-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">Collab</span>
+                        Pro</span>
                 </h1>
             </div>
 
-            <!-- Subtitle -->
             <p class="hero-subtitle" [@titleAnimation]>
-                The <span class="text-pink-300 font-semibold">next-generation cloud IDE</span> that revolutionizes 
-                team collaboration with 
-                <span class="gradient-flow-text font-medium">AI-powered workflows</span>, 
-                real-time editing, and enterprise-grade security.
+                The <span class="text-pink-300 font-semibold">next-generation cloud IDE</span> that revolutionizes
+                team collaboration with
+                <span class="gradient-flow-text font-medium">real-time editing</span>,
+                powerful workflows, and enterprise-grade security.
             </p>
+
 
             <!-- Stats Grid -->
             <div class="stats-grid" [@counterAnimation]>
@@ -79,28 +69,18 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons" [@titleAnimation]>
-                <button 
-                    (click)="onLaunchTerminal()"
-                    class="primary-btn group"
-                    [@buttonPulse]="currentParticleState"
-                >
+                <button (click)="onLaunchTerminal()" class="primary-btn group" [@buttonPulse]="currentParticleState">
                     <span class="btn-icon">⚡</span>
                     <span class="btn-text">Launch Terminal</span>
                     <span class="btn-arrow">→</span>
                 </button>
 
-                <button 
-                    (click)="onOpenDocs()"
-                    class="secondary-btn group"
-                >
+                <button routerLink="/documentation" class="secondary-btn group">
                     <span class="btn-icon">📚</span>
                     <span class="btn-text">View Documentation</span>
                 </button>
 
-                <button 
-                    (click)="onWatchDemo()"
-                    class="tertiary-btn group"
-                >
+                <button routerLink="/demo" class="tertiary-btn group">
                     <span class="btn-icon">🎥</span>
                     <span class="btn-text">Watch Demo</span>
                 </button>
@@ -117,7 +97,7 @@
             </div>
         </div>
 
-        
+
 
     </div>
 </section>
