@@ -1,9 +1,6 @@
 const projectModel = require("../models/projectModel");
 const userModel = require("../models/userModel");
 
-
-
-
 async function addProject(req, res) {
   try {
     const { name, description } = req.body;
@@ -52,10 +49,6 @@ async function addProject(req, res) {
   }
 }
 
-
-
-
-
 async function getProjects(req, res) {
   try {
     const owner = req.Id;
@@ -76,7 +69,6 @@ async function getProjects(req, res) {
     });
   }
 }
-
 
 async function getProject(req, res) {
   try {
@@ -100,4 +92,63 @@ async function getProject(req, res) {
   }
 }
 
-module.exports = { addProject, getProjects, getProject };
+async function updateProject(req, res) {
+  try {
+    const { id } = req.params;
+    const { name, description } = req.body;
+    const owner = req.Id;
+
+    // Check if project exists and user owns it
+    const project = await projectModel.findOne({ _id: id, owner });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found or you don't have permission to edit",
+      });
+    }
+
+    // Check if new name already exists (excluding current project)
+    if (name && name !== project.name) {
+      const nameExists = await projectModel.findOne({
+        name,
+        owner,
+        _id: { $ne: id },
+      });
+
+      if (nameExists) {
+        return res.status(409).json({
+          success: false,
+          message: "Project name already exists",
+        });
+      }
+    }
+
+    // Update project
+    const updatedProject = await projectModel.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          ...(name && { name }),
+          ...(description && { description }),
+          updatedAt: new Date(),
+        },
+      },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      data: updatedProject,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}
+
+module.exports = { addProject, getProjects, getProject, updateProject };

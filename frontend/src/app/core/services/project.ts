@@ -6,17 +6,22 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ProjectService {
+  api = environment.api;
+  constructor(private http: HttpClient) {}
 
-   api = environment.api;
-   constructor(private http:HttpClient){};
+  createProject(data: any): Observable<any> {
+    return this.http.post(`${this.api}/project/add-project`, data);
+  }
 
-   createProject(data:any):Observable<any>{
-      return this.http.post(`${this.api}/project/add-project`,data);
-      
-   }
+  getProjects() {
+    return this.http.get(`${this.api}/project/get-projects`);
+  }
 
-   getProjects(){
-      return this.http.get(`${this.api}/project/get-projects`);
-   }
-  
+  getProjectById(id: string): Observable<any> {
+    return this.http.get(`${this.api}/project/get-project/${id}`);
+  }
+
+  updateProject(id: string, data: any): Observable<any> {
+    return this.http.put(`${this.api}/project/update-project/${id}`, data);
+  }
 }
