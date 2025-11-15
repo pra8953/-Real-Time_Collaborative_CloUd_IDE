@@ -7,7 +7,7 @@ const userModel = require("../models/userModel");
 async function addProject(req, res) {
   try {
     const { name, description } = req.body;
-    const owner = req.Id; // token se aaya
+    const owner = req.Id; // came from token
 
     if (!name) {
       return res.status(400).json({
