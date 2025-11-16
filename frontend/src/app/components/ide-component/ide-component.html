@@ -1,12 +1,12 @@
 <div class="editor-container flex h-screen bg-editor-dark text-white">
   <!-- Sidebar -->
-  <div class="w-60 bg-editor-sidebar border-r border-editor-border flex flex-col flex-shrink-0">
+  <div class="w-60 bg-editor-sidebar border-r border-editor-border flex flex-col shrink-0">
     <!-- Sidebar Header -->
     <div class="p-4 border-b border-editor-border flex justify-between items-center">
       <h3 class="font-semibold text-sm">
         <i class="fas fa-folder mr-2"></i>FILES
       </h3>
-      <button 
+      <button
         class="bg-editor-primary text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-blue-600 transition-colors"
         (click)="createFile()">
         <i class="fas fa-plus"></i> New File
@@ -17,24 +17,15 @@
     <div *ngIf="isCreatingFile" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-editor-sidebar p-6 rounded-lg border border-editor-border w-96">
         <h4 class="text-gray-300 mb-4">Create New File</h4>
-        <input
-          type="text"
-          [(ngModel)]="newFileName"
-          placeholder="filename.html"
+        <input type="text" [(ngModel)]="newFileName" placeholder="filename.html"
           class="w-full p-3 bg-gray-700 border border-gray-600 rounded text-gray-300 mb-4 focus:outline-none focus:border-editor-primary"
-          (keyup.enter)="confirmCreateFile()"
-          (keyup.escape)="cancelCreateFile()"
-          #fileNameInput
-          autofocus
-        />
+          (keyup.enter)="confirmCreateFile()" (keyup.escape)="cancelCreateFile()" #fileNameInput autofocus />
         <div class="flex justify-end gap-2">
-          <button
-            class="bg-editor-primary text-white px-4 py-2 rounded text-sm hover:bg-blue-600 transition-colors"
+          <button class="bg-editor-primary text-white px-4 py-2 rounded text-sm hover:bg-blue-600 transition-colors"
             (click)="confirmCreateFile()">
             Create
           </button>
-          <button
-            class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-500 transition-colors"
+          <button class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-500 transition-colors"
             (click)="cancelCreateFile()">
             Cancel
           </button>
@@ -48,28 +39,25 @@
         WORKSPACE FILES ({{files.length}})
       </div>
       <ul class="file-list">
-        <li
-          *ngFor="let file of files"
-          (click)="selectFile(file)"
+        <li *ngFor="let file of files" (click)="selectFile(file)"
           [class]="'file-item flex items-center px-4 py-2 cursor-pointer transition-colors border-l-4 ' + 
-                  (selectedFile?.id === file.id ? 'border-editor-primary bg-editor-hover' : 'border-transparent hover:bg-editor-hover')">
+                  (selectedFile?._id === file._id ? 'border-editor-primary bg-editor-hover' : 'border-transparent hover:bg-editor-hover')">
           <span class="mr-2 text-sm">
             {{ getFileIcon(file.name) }}
           </span>
           <span class="flex-1 text-sm text-gray-300 truncate">{{ file.name }}</span>
           <div class="flex items-center gap-2">
-            <span
-              *ngIf="selectedFile?.id === file.id && file.unsavedChanges"
-              class="unsaved-indicator text-yellow-500 text-lg"
-              title="Unsaved changes">
+            <span *ngIf="selectedFile?._id === file._id && file.unsavedChanges"
+              class="unsaved-indicator text-yellow-500 text-lg" title="Unsaved changes">
               ●
             </span>
+            <!-- DELETE BUTTON (FULL FIXED) -->
             <span
-              class="text-red-400 cursor-pointer hover:bg-red-500 hover:text-white rounded px-1 transition-colors"
-              (click)="deleteFile(file.id, $event)"
-              title="Delete File">
-              ×
-            </span>
+  class="text-red-400 px-1 rounded cursor-pointer hover:bg-red-500 hover:text-white transition"
+  (click)="deleteFile(file, $event)">
+  <i class="fas fa-trash"></i>
+</span>
+
           </div>
         </li>
       </ul>
@@ -79,46 +67,43 @@
   <!-- Main Content - Takes remaining space -->
   <div class="flex-1 flex flex-col bg-editor-dark min-w-0">
     <!-- Editor Header -->
-    <div *ngIf="selectedFile" class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-editor-tab border-b border-editor-border gap-2">
+    <div *ngIf="selectedFile"
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-editor-tab border-b border-editor-border gap-2">
       <div class="tabs flex items-center">
         <div class="tab flex items-center gap-2 px-3 py-1.5 bg-editor-dark rounded text-sm text-gray-300">
           <span>
             {{ getFileIcon(selectedFile.name) }}
           </span>
           {{ selectedFile.name }}
-          <span 
-            *ngIf="hasUnsavedChanges()" 
-            class="unsaved-indicator text-yellow-500 text-lg">
+          <span *ngIf="hasUnsavedChanges()" class="unsaved-indicator text-yellow-500 text-lg">
             ●
           </span>
         </div>
       </div>
       <div class="editor-actions flex items-center gap-2 flex-wrap">
-        <span 
-          *ngIf="hasUnsavedChanges()" 
-          class="text-xs text-yellow-500 italic">
+        <span *ngIf="hasUnsavedChanges()" class="text-xs text-yellow-500 italic">
           Unsaved changes
         </span>
-        
+
         <!-- Browser Preview Button -->
-        <button 
+        <button
           class="bg-editor-purple text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-purple-700 transition-colors"
           (click)="openBrowserPreview()">
-          <i class="fas fa-external-link-alt"></i> 
+          <i class="fas fa-external-link-alt"></i>
           Browser Preview
         </button>
-        
-        <button 
+
+        <button
           class="bg-editor-success text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-green-600 transition-colors"
           (click)="runCode()">
           <i class="fas fa-play"></i> Run
         </button>
-        <button 
+        <button
           class="bg-editor-warning text-gray-800 px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-yellow-500 transition-colors"
           (click)="saveFile()">
           <i class="fas fa-save"></i> Save
         </button>
-        <button 
+        <button
           class="bg-editor-purple text-white px-3 py-1.5 rounded text-xs flex items-center gap-1 hover:bg-purple-700 transition-colors"
           (click)="formatCode()">
           <i class="fas fa-magic"></i> Format
@@ -144,7 +129,7 @@
         <p class="text-gray-500 mb-6">
           Select a file from the sidebar or create a new one to start coding.
         </p>
-        <button 
+        <button
           class="bg-editor-primary text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors mx-auto"
           (click)="createFile()">
           <i class="fas fa-plus"></i> Create New File
@@ -156,9 +141,7 @@
             <i class="fas fa-folder mr-2"></i>Recent Files
           </h3>
           <div class="space-y-2">
-            <div
-              *ngFor="let file of files.slice(0, 5)"
-              (click)="selectFile(file)"
+            <div *ngFor="let file of files.slice(0, 5)" (click)="selectFile(file)"
               class="recent-file flex items-center gap-3 p-3 bg-editor-sidebar rounded cursor-pointer hover:bg-editor-hover transition-colors">
               <span class="text-sm">
                 {{ getFileIcon(file.name) }}

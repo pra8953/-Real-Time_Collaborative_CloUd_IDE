@@ -6,5 +6,5 @@ import { IdeComponent } from '../components/ide-component/ide-component';
 export const viewRoutes:Routes=[
         {path:"",component:Index},
         {path:"create-project",component:CreateProject},
-        {path:"project_ide",component:IdeComponent}
+        {path:"project_ide/:id",component:IdeComponent}
 ]

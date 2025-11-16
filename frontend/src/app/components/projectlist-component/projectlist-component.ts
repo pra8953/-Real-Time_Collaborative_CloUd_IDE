@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { ProjectService } from '../../core/services/project';
@@ -19,7 +19,7 @@ interface Project {
 
 @Component({
   selector: 'app-projectlist-component',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink,NgIf],
   templateUrl: './projectlist-component.html',
   styleUrl: './projectlist-component.css',
 })

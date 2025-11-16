@@ -1,11 +1,13 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { FileService } from '../../core/services/file';
 
 declare const monaco: any;
 
 interface File {
-  id: string;
+  _id: string;
   name: string;
   content: string;
   language: string;
@@ -22,7 +24,7 @@ interface File {
 export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editorContainer', { static: false }) editorContainer!: ElementRef;
   @ViewChild('fileNameInput', { static: false }) fileNameInput!: ElementRef;
-
+  route = inject(ActivatedRoute);
   private editor: any;
   private monacoLoaded = false;
   private previewWindow: Window | null = null;
@@ -40,7 +42,7 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Sample initial files
   private initialFiles: File[] = [
     {
-      id: '1',
+      _id: '1',
       name: 'index.html',
       content: `<!DOCTYPE html>
 <html lang="en">
@@ -63,7 +65,7 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
       language: 'html'
     },
     {
-      id: '2',
+      _id: '2',
       name: 'styles.css',
       content: `/* Main Styles */
 * {
@@ -71,92 +73,16 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
     padding: 0;
     box-sizing: border-box;
 }
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.container {
-    background: white;
-    padding: 3rem;
-    border-radius: 15px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    text-align: center;
-    max-width: 500px;
-    width: 90%;
-}
-
-h1 {
-    color: #333;
-    margin-bottom: 1rem;
-    font-size: 2.5rem;
-    font-weight: 300;
-}
-
-p {
-    color: #666;
-    margin-bottom: 2rem;
-    line-height: 1.6;
-}
-
-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    background: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0,123,255,0.3);
-}`,
+`,
       language: 'css'
     },
     {
-      id: '3',
+      _id: '3',
       name: 'script.js',
       content: `// JavaScript File
 console.log('🚀 Script loaded successfully!');
 
-function showAlert() {
-    alert('Hello from JavaScript! 🎉');
-    console.log('Button clicked!');
-}
-
-// Sample function
-function calculateSum(a, b) {
-    return a + b;
-}
-
-// Event listener for page load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded and parsed');
-    
-    // Add some dynamic content
-    const container = document.querySelector('.container');
-    if (container) {
-        const dynamicElement = document.createElement('p');
-        dynamicElement.textContent = 'This text was added dynamically by JavaScript!';
-        dynamicElement.style.color = '#28a745';
-        dynamicElement.style.marginTop = '1rem';
-        container.appendChild(dynamicElement);
-    }
-});
-
-// Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { calculateSum, showAlert };
-}`,
+`,
       language: 'javascript'
     }
   ];
@@ -178,6 +104,8 @@ if (typeof module !== 'undefined' && module.exports) {
       this.previewWindow.close();
     }
   }
+
+  constructor(private fileservices: FileService) {}
 
   // ✅ OPEN BROWSER PREVIEW IN NEW TAB
   openBrowserPreview() {
@@ -225,13 +153,13 @@ if (typeof module !== 'undefined' && module.exports) {
     try {
       await this.loadMonacoScript();
       this.monacoLoaded = true;
-      console.log('✅ Monaco Editor loaded successfully');
+      console.log(' Monaco Editor loaded successfully');
       
       if (this.selectedFile) {
         setTimeout(() => this.initializeEditor(), 100);
       }
     } catch (error) {
-      console.error('❌ Failed to load Monaco Editor:', error);
+      console.error(' Failed to load Monaco Editor:', error);
       this.showNotification('Failed to load code editor. Using basic text area.', 'error');
     }
   }
@@ -330,13 +258,22 @@ if (typeof module !== 'undefined' && module.exports) {
     }
   }
 
-  // ✅ FILE OPERATIONS
   loadFiles() {
-    // Simulate API call
-    setTimeout(() => {
-      this.files = [...this.initialFiles];
-      console.log('📂 Files loaded:', this.files.length);
-    }, 500);
+    const projectId = this.route.snapshot.paramMap.get("id");
+
+    this.fileservices.getfiles(projectId).subscribe({
+      next: (res) => {
+        console.log("API:", res);
+        this.files = res.data;   // ✔ Correct
+
+        if (this.files.length > 0) {
+          this.selectFile(this.files[0]);
+        }
+      },
+      error: () => {
+        this.showNotification("Failed to load project files", "error");
+      }
+    });
   }
 
   selectFile(file: File) {
@@ -382,18 +319,38 @@ if (typeof module !== 'undefined' && module.exports) {
       return;
     }
 
-    const newFile: File = {
-      id: Date.now().toString(),
+    const projectId = this.route.snapshot.paramMap.get("id");
+
+    const payload = {
       name: this.newFileName,
       content: this.getDefaultContent(this.newFileName),
-      language: this.getLanguageFromExtension(this.newFileName)
+      language: this.getLanguageFromExtension(this.newFileName),
+      project: projectId
     };
 
-    this.files.push(newFile);
-    this.isCreatingFile = false;
-    this.newFileName = '';
-    this.selectFile(newFile);
-    this.showNotification('File created successfully!', 'success');
+    this.fileservices.addfile(payload).subscribe({
+      next: (res) => {
+        this.showNotification("File created successfully!", "success");
+
+        this.files.push({
+          _id: res.data._id,  
+          name: payload.name,
+          content: payload.content,
+          language: payload.language
+        });
+
+        // File open kar do
+        const newFile = this.files[this.files.length - 1];
+        this.selectFile(newFile);
+
+        this.isCreatingFile = false;
+        this.newFileName = '';
+      },
+      error: (err) => {
+        this.showNotification("File creation failed!", "error");
+        console.error(err);
+      }
+    });
   }
 
   cancelCreateFile() {
@@ -401,23 +358,35 @@ if (typeof module !== 'undefined' && module.exports) {
     this.newFileName = '';
   }
 
-  deleteFile(fileId: string, event: Event) {
-    event.stopPropagation();
-    
-    if (confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
-      this.files = this.files.filter(file => file.id !== fileId);
-      
-      if (this.selectedFile && this.selectedFile.id === fileId) {
-        this.selectedFile = null;
-        this.code = '';
-        this.originalContent = '';
+  deleteFile(file: File, event: Event) {
+    console.log("Deleting file:", file);
+    event.stopPropagation(); // ✔️ Click selectFile ko trigger nahi karega
+
+    if (!confirm("Are you sure you want to delete this file?")) return;
+
+    // ✅ Use file._id directly from the file object
+    this.fileservices.deleteFile(file._id).subscribe({
+      next: () => {
+        // UI se remove
+        this.files = this.files.filter(f => f._id !== file._id);
+
+        // Agar deleted file open thi to reset
+        if (this.selectedFile?._id === file._id) {
+          this.selectedFile = null;
+          this.code = '';
+          this.originalContent = '';
+        }
+
+        this.showNotification("File deleted successfully!", "success");
+      },
+      error: (error) => {
+        console.error("Delete error:", error);
+        this.showNotification("Failed to delete file", "error");
       }
-      
-      this.showNotification('File deleted successfully!', 'success');
-    }
+    });
   }
 
-  // ✅ EDITOR ACTIONS
+  // ✅ EDITOR ACTIONS - UPDATED SAVE METHOD
   hasUnsavedChanges(): boolean {
     return this.selectedFile ? this.code !== this.originalContent : false;
   }
@@ -428,15 +397,34 @@ if (typeof module !== 'undefined' && module.exports) {
     }
   }
 
+  // ✅ UPDATED SAVE METHOD WITH API CALL
   saveFile() {
     if (this.selectedFile) {
-      // Simulate API call
-      setTimeout(() => {
-        this.selectedFile!.content = this.code;
-        this.originalContent = this.code;
-        this.updateUnsavedChanges();
-        this.showNotification('File saved successfully!', 'success');
-      }, 300);
+      // Show saving notification
+      this.showNotification('Saving file...', 'warning');
+
+      const payload = {
+        name: this.selectedFile.name,
+        content: this.code,
+        language: this.selectedFile.language
+      };
+
+      // Call updatefile API
+      this.fileservices.updatefile(this.selectedFile._id, payload).subscribe({
+        next: (res) => {
+          // Update local state
+          this.selectedFile!.content = this.code;
+          this.originalContent = this.code;
+          this.updateUnsavedChanges();
+          
+          this.showNotification('File saved successfully!', 'success');
+          console.log('File saved:', res);
+        },
+        error: (error) => {
+          console.error('Save error:', error);
+          this.showNotification('Failed to save file!', 'error');
+        }
+      });
     } else {
       this.showNotification('No file selected to save!', 'error');
     }
