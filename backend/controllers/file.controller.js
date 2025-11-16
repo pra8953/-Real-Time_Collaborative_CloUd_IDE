@@ -45,6 +45,7 @@ async function addfile(req, res) {
         return res.status(201).json({
             success: true,
             message: `${name} file created successfully!`,
+            file:savedFile
         });
     } catch (err) {
         console.error("Error creating file:", err);
@@ -53,7 +54,7 @@ async function addfile(req, res) {
 }
 
 async function getFiles(req,res){
-    const {projectId} = req.body;
+    const projectId = req.params.id; 
     try{
         const files = await fileModel.find({projectId});
         return res.status(200).json({
@@ -69,6 +70,46 @@ async function getFiles(req,res){
     }
 }
 
+async function updateFile(req,res){
+    try{
+        const file = await fileModel.findByIdAndUpdate(req.params.id,req.body,{new:true});
+        return res.status(200).json({
+            success:true,
+            message:"File updated successfully!"
+        })
+
+    }catch(err){
+         res.status(500).json({
+            success:false,
+            message:"Internal server error"
+        })
+    }
+}
 
 
-module.exports ={addfile,getFiles};
+async function deletefile(req,res){
+    try{
+
+        const file = await fileModel.findByIdAndDelete(req.params.id);
+
+                
+        await projectModel.findByIdAndUpdate(file.projectId, {
+            $pull: { files: file._id }
+        });
+
+        return res.status(200).json({
+            success:true,
+            message:"File deleted successfully!"
+        })
+        
+
+    }catch(err){
+            res.status(500).json({
+            success:false,
+            message:"Internal server error"
+        })
+    }
+}
+
+
+module.exports ={addfile,getFiles,updateFile,deletefile};
