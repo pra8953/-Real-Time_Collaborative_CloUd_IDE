@@ -9,15 +9,11 @@ if (!mongo_url) {
 
 async function connectDb() {
   try {
-    // Recommended options for production
     await mongoose.connect(mongo_url);
 
-    console.log("✅ Database connected successfully!");
-
+    console.log(" Database connected successfully!");
   } catch (err) {
-    console.error("❌ Error connecting to MongoDB:", err.message);
-
- 
+    console.error(" Error connecting to MongoDB:", err.message);
   }
 }
 

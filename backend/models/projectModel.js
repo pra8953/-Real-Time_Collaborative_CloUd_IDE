@@ -12,7 +12,6 @@ const projectSchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      
     },
 
     description: {
@@ -46,12 +45,20 @@ const projectSchema = mongoose.Schema(
       required: true,
       default: 1,
     },
+
+    inviteToken: {
+      type: String,
+      default: null,
+    },
+    
+    inviteTokenExpiry: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
-
-
 
 module.exports = mongoose.model("Project", projectSchema);

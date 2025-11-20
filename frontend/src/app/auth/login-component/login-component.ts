@@ -181,7 +181,8 @@ export class LoginComponent implements OnInit {
           backgroundColor: 'linear-gradient(to right, #00b09b, #96c93d)',
         }).showToast();
 
-        this.router.navigateByUrl('/dashboard');
+        // this.router.navigateByUrl('/dashboard');
+        this.handlePostLoginRedirect();
       },
       error: (err) => {
         this.isLoading = false;
@@ -199,6 +200,58 @@ export class LoginComponent implements OnInit {
         console.error('Login error:', err);
       },
     });
+  }
+
+  private handlePostLoginRedirect(): void {
+    const redirectUrl = localStorage.getItem('redirectUrl');
+
+    if (redirectUrl) {
+      // Parse the redirect URL to extract projectId and token
+      const url = new URL(redirectUrl, window.location.origin);
+      const pathParts = url.pathname.split('/');
+      const projectId = pathParts[pathParts.length - 1]; // Last part of path
+      const token = url.searchParams.get('token');
+
+      if (projectId && token && projectId !== 'login') {
+        // Redirect to IDE with token
+        this.router.navigate(['/dashboard/project_ide', projectId], {
+          queryParams: { token: token },
+        });
+
+        // Clear redirect URL
+        localStorage.removeItem('redirectUrl');
+        return;
+      }
+    }
+    // Check URL for invite parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('projectId');
+    const token = urlParams.get('token');
+
+    if (projectId && token) {
+      this.router.navigate(['/dashboard/project_ide', projectId], {
+        queryParams: { token: token },
+      });
+      return;
+    }
+
+    // Check localStorage for pending invite
+    const pendingToken = localStorage.getItem('pendingInviteToken');
+    const pendingProjectId = localStorage.getItem('pendingProjectId');
+
+    if (pendingProjectId && pendingToken) {
+      this.router.navigate(['/dashboard/project_ide', pendingProjectId], {
+        queryParams: { token: pendingToken },
+      });
+
+      localStorage.removeItem('pendingInviteToken');
+      localStorage.removeItem('pendingProjectId');
+      return;
+    }
+
+    this.router.navigateByUrl('/dashboard');
+
+    localStorage.removeItem('redirectUrl');
   }
 
   onSignUp() {

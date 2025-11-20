@@ -1,8 +1,20 @@
-import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FileService } from '../../core/services/file';
+import { SocketService } from '../../core/services/socket.services';
+import { Authservices } from '../../core/services/authservices';
+import { Subject } from 'rxjs';
+import { ProjectService } from '../../core/services/project';
 
 declare const monaco: any;
 
@@ -14,12 +26,38 @@ interface File {
   unsavedChanges?: boolean;
 }
 
+interface User {
+  userId: string;
+  username: string;
+  socketId: string;
+}
+
+interface CursorPosition {
+  line: number;
+  column: number;
+}
+
+interface CursorData {
+  userId: string;
+  username: string;
+  cursor: CursorPosition;
+  selection?: any;
+}
+
+interface ContentUpdate {
+  changeId: string;
+  userId: string;
+  fileId: string;
+  changes: any;
+  fullContent?: string;
+}
+
 @Component({
   selector: 'app-ide-component',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './ide-component.html',
-  styleUrls: ['./ide-component.css']
+  styleUrls: ['./ide-component.css'],
 })
 export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('editorContainer', { static: false }) editorContainer!: ElementRef;
@@ -27,6 +65,7 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
   route = inject(ActivatedRoute);
   private editor: any;
   private monacoLoaded = false;
+  private monacoLoadPromise: Promise<void> | null = null;
   private previewWindow: Window | null = null;
 
   // Editor state
@@ -38,6 +77,16 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
   // File operations
   isCreatingFile: boolean = false;
   newFileName: string = 'new-file.html';
+
+  // Collaboration properties
+  private collaborators = new Map<string, any>();
+  public collaboratorsArray: any[] = []; // userId -> collaborator data
+  private remoteCursors = new Map<string, any>(); // userId -> cursor decoration
+  private isRemoteUpdate = false; // Prevent update loops
+
+  // User info from auth
+  private currentUserId: string = '';
+  private currentUsername: string = '';
 
   // Sample initial files
   private initialFiles: File[] = [
@@ -62,7 +111,7 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
     <script src="script.js"></script>
 </body>
 </html>`,
-      language: 'html'
+      language: 'html',
     },
     {
       _id: '2',
@@ -74,7 +123,7 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
     box-sizing: border-box;
 }
 `,
-      language: 'css'
+      language: 'css',
     },
     {
       _id: '3',
@@ -83,13 +132,16 @@ export class IdeComponent implements OnInit, AfterViewInit, OnDestroy {
 console.log('🚀 Script loaded successfully!');
 
 `,
-      language: 'javascript'
-    }
+      language: 'javascript',
+    },
   ];
 
   ngOnInit() {
+    this.getCurrentUserInfo();
+    this.initializeCollaboration();
     this.loadFiles();
     this.loadMonacoEditor();
+    this.handleInviteToken();
   }
 
   ngAfterViewInit() {
@@ -97,6 +149,11 @@ console.log('🚀 Script loaded successfully!');
   }
 
   ngOnDestroy() {
+    const projectId = this.route.snapshot.paramMap.get('id');
+    if (projectId) {
+      this.socketService.leaveProject(projectId);
+    }
+
     if (this.editor) {
       this.editor.dispose();
     }
@@ -105,7 +162,12 @@ console.log('🚀 Script loaded successfully!');
     }
   }
 
-  constructor(private fileservices: FileService) {}
+  constructor(
+    private fileservices: FileService,
+    private socketService: SocketService,
+    private authService: Authservices,
+    private projectService: ProjectService
+  ) {}
 
   // ✅ OPEN BROWSER PREVIEW IN NEW TAB
   openBrowserPreview() {
@@ -117,10 +179,14 @@ console.log('🚀 Script loaded successfully!');
     const previewContent = this.generatePreviewContent();
     const blob = new Blob([previewContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
-    
+
     // Open in new tab
-    this.previewWindow = window.open(url, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-    
+    this.previewWindow = window.open(
+      url,
+      '_blank',
+      'width=1200,height=800,scrollbars=yes,resizable=yes'
+    );
+
     if (this.previewWindow) {
       this.previewWindow.focus();
       this.showNotification('Preview opened in new tab!', 'success');
@@ -132,9 +198,9 @@ console.log('🚀 Script loaded successfully!');
   // ✅ GENERATE PREVIEW CONTENT
   private generatePreviewContent(): string {
     if (!this.selectedFile) return '';
-    
+
     const fileName = this.selectedFile.name.toLowerCase();
-    
+
     if (fileName.endsWith('.html')) {
       return this.code;
     } else if (fileName.endsWith('.css')) {
@@ -148,20 +214,58 @@ console.log('🚀 Script loaded successfully!');
 
   // ✅ LOAD MONACO EDITOR
   private async loadMonacoEditor(): Promise<void> {
-    if (this.monacoLoaded) return;
-
-    try {
-      await this.loadMonacoScript();
-      this.monacoLoaded = true;
-      console.log(' Monaco Editor loaded successfully');
-      
-      if (this.selectedFile) {
-        setTimeout(() => this.initializeEditor(), 100);
-      }
-    } catch (error) {
-      console.error(' Failed to load Monaco Editor:', error);
-      this.showNotification('Failed to load code editor. Using basic text area.', 'error');
+    // if (this.monacoLoaded) return;
+    if (this.monacoLoadPromise) {
+      return this.monacoLoadPromise;
     }
+
+    this.monacoLoadPromise = new Promise((resolve, reject) => {
+      if (this.monacoLoaded) {
+        resolve();
+        return;
+      }
+
+      // ✅ Check if Monaco already loaded
+      if (typeof monaco !== 'undefined') {
+        this.monacoLoaded = true;
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src =
+        'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js';
+
+      script.onload = () => {
+        (window as any).require.config({
+          paths: {
+            vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs',
+          },
+        });
+
+        (window as any).require(
+          ['vs/editor/editor.main'],
+          () => {
+            this.monacoLoaded = true;
+            resolve();
+          },
+          (error: any) => {
+            console.error('❌ Monaco main load failed:', error);
+            reject(error);
+          }
+        );
+      };
+
+      script.onerror = (error) => {
+        console.error('❌ Monaco loader failed to load:', error);
+        reject(new Error('Failed to load Monaco Editor'));
+      };
+
+      // ✅ Add to head for better loading
+      document.head.appendChild(script);
+    });
+
+    return this.monacoLoadPromise;
   }
 
   private loadMonacoScript(): Promise<void> {
@@ -172,25 +276,30 @@ console.log('🚀 Script loaded successfully!');
       }
 
       const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js';
+      script.src =
+        'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js';
       script.onload = () => {
-        (window as any).require.config({ 
-          paths: { 
-            vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' 
-          } 
+        (window as any).require.config({
+          paths: {
+            vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs',
+          },
         });
-        
-        (window as any).require(['vs/editor/editor.main'], () => {
-          resolve();
-        }, (error: any) => {
-          reject(error);
-        });
+
+        (window as any).require(
+          ['vs/editor/editor.main'],
+          () => {
+            resolve();
+          },
+          (error: any) => {
+            reject(error);
+          }
+        );
       };
-      
+
       script.onerror = () => {
         reject(new Error('Failed to load Monaco Editor'));
       };
-      
+
       document.head.appendChild(script);
     });
   }
@@ -222,16 +331,53 @@ console.log('🚀 Script loaded successfully!');
         scrollbar: {
           vertical: 'visible',
           horizontal: 'visible',
-          useShadows: false
+          useShadows: false,
+        },
+      });
+
+      // Add cursor movement tracking
+      this.editor.onDidChangeCursorPosition((e: any) => {
+        if (this.selectedFile && this.currentUserId) {
+          this.socketService.sendCursorMove(
+            {
+              line: e.position.lineNumber - 1,
+              column: e.position.column - 1,
+            },
+            this.editor.getSelection()
+          );
         }
       });
 
-      // Listen to content changes
-      this.editor.onDidChangeModelContent(() => {
+      // Add content change tracking
+      this.editor.onDidChangeModelContent((e: any) => {
         const newCode = this.editor.getValue();
-        if (this.code !== newCode) {
-          this.code = newCode;
-          this.updateUnsavedChanges();
+
+        console.log('📝 EDITOR CONTENT CHANGED - SENDING TO SERVER:', {
+          changesCount: e.changes.length,
+          newCodeLength: newCode.length,
+          selectedFile: this.selectedFile?.name,
+          selectedFileId: this.selectedFile?._id,
+          isRemoteUpdate: this.isRemoteUpdate,
+        });
+
+        this.code = newCode;
+        this.updateUnsavedChanges();
+
+        if (this.selectedFile && !this.isRemoteUpdate) {
+          console.log('🚀 SENDING CONTENT-CHANGE EVENT TO SERVER:', {
+            fileId: this.selectedFile._id,
+            file: this.selectedFile.name,
+            changesCount: e.changes.length,
+            fullContentLength: this.code.length,
+            socketConnected: this.socketService.getConnectionStatus(),
+          });
+
+          // Send content changes to other users
+          this.socketService.sendContentChange(
+            this.selectedFile._id,
+            e.changes, // Monaco change events
+            this.code // Full content as fallback
+          );
         }
       });
 
@@ -241,7 +387,6 @@ console.log('🚀 Script loaded successfully!');
           this.editor.layout();
         }
       });
-
     } catch (error) {
       console.error('❌ Error initializing Monaco Editor:', error);
     }
@@ -259,27 +404,29 @@ console.log('🚀 Script loaded successfully!');
   }
 
   loadFiles() {
-    const projectId = this.route.snapshot.paramMap.get("id");
+    const projectId = this.route.snapshot.paramMap.get('id');
 
     this.fileservices.getfiles(projectId).subscribe({
       next: (res) => {
-        console.log("API:", res);
-        this.files = res.data;   // ✔ Correct
+        console.log('API:', res);
+        this.files = res.data; // ✔ Correct
 
         if (this.files.length > 0) {
           this.selectFile(this.files[0]);
         }
       },
       error: () => {
-        this.showNotification("Failed to load project files", "error");
-      }
+        this.showNotification('Failed to load project files', 'error');
+      },
     });
   }
 
   selectFile(file: File) {
     // Check for unsaved changes
     if (this.hasUnsavedChanges() && this.selectedFile) {
-      const confirmChange = confirm(`You have unsaved changes in ${this.selectedFile.name}. Do you want to continue without saving?`);
+      const confirmChange = confirm(
+        `You have unsaved changes in ${this.selectedFile.name}. Do you want to continue without saving?`
+      );
       if (!confirmChange) {
         return;
       }
@@ -288,9 +435,9 @@ console.log('🚀 Script loaded successfully!');
     this.selectedFile = file;
     this.code = file.content || '';
     this.originalContent = file.content || '';
-    
+
     const language = this.getLanguageFromExtension(file.name);
-    
+
     // Ensure Monaco is loaded before updating editor
     if (!this.monacoLoaded) {
       this.loadMonacoEditor().then(() => {
@@ -304,7 +451,7 @@ console.log('🚀 Script loaded successfully!');
   createFile() {
     this.isCreatingFile = true;
     this.newFileName = 'new-file.html';
-    
+
     setTimeout(() => {
       if (this.fileNameInput) {
         this.fileNameInput.nativeElement.focus();
@@ -319,37 +466,49 @@ console.log('🚀 Script loaded successfully!');
       return;
     }
 
-    const projectId = this.route.snapshot.paramMap.get("id");
+    const projectId = this.route.snapshot.paramMap.get('id');
 
     const payload = {
       name: this.newFileName,
       content: this.getDefaultContent(this.newFileName),
       language: this.getLanguageFromExtension(this.newFileName),
-      project: projectId
+      project: projectId,
     };
 
     this.fileservices.addfile(payload).subscribe({
       next: (res) => {
-        this.showNotification("File created successfully!", "success");
+        if (!res.file || !res.file._id) {
+          console.error('❌ File object missing _id:', res.file);
+          this.showNotification('File created but response format error', 'warning');
+          return;
+        }
 
-        this.files.push({
-          _id: res.data._id,  
-          name: payload.name,
-          content: payload.content,
-          language: payload.language
-        });
+        this.showNotification('File created successfully!', 'success');
 
-        // File open kar do
-        const newFile = this.files[this.files.length - 1];
-        this.selectFile(newFile);
+        // Close dialog box
+        this.isCreatingFile = false;
+        this.newFileName = '';
 
+        const newFile = {
+          _id: res.file._id,
+          name: res.file.name || payload.name,
+          content: res.file.content || payload.content,
+          language: res.file.language || payload.language,
+          unsavedChanges: false,
+        };
+
+        this.files = [...this.files, newFile];
+
+        setTimeout(() => {
+          this.selectFile(newFile);
+        }, 200);
+      },
+      error: (err) => {
+        this.showNotification('File creation failed!', 'error');
+        console.error(err);
         this.isCreatingFile = false;
         this.newFileName = '';
       },
-      error: (err) => {
-        this.showNotification("File creation failed!", "error");
-        console.error(err);
-      }
     });
   }
 
@@ -359,16 +518,16 @@ console.log('🚀 Script loaded successfully!');
   }
 
   deleteFile(file: File, event: Event) {
-    console.log("Deleting file:", file);
+    console.log('Deleting file:', file);
     event.stopPropagation(); // ✔️ Click selectFile ko trigger nahi karega
 
-    if (!confirm("Are you sure you want to delete this file?")) return;
+    if (!confirm('Are you sure you want to delete this file?')) return;
 
     // ✅ Use file._id directly from the file object
     this.fileservices.deleteFile(file._id).subscribe({
       next: () => {
         // UI se remove
-        this.files = this.files.filter(f => f._id !== file._id);
+        this.files = this.files.filter((f) => f._id !== file._id);
 
         // Agar deleted file open thi to reset
         if (this.selectedFile?._id === file._id) {
@@ -377,12 +536,12 @@ console.log('🚀 Script loaded successfully!');
           this.originalContent = '';
         }
 
-        this.showNotification("File deleted successfully!", "success");
+        this.showNotification('File deleted successfully!', 'success');
       },
       error: (error) => {
-        console.error("Delete error:", error);
-        this.showNotification("Failed to delete file", "error");
-      }
+        console.error('Delete error:', error);
+        this.showNotification('Failed to delete file', 'error');
+      },
     });
   }
 
@@ -406,7 +565,7 @@ console.log('🚀 Script loaded successfully!');
       const payload = {
         name: this.selectedFile.name,
         content: this.code,
-        language: this.selectedFile.language
+        language: this.selectedFile.language,
       };
 
       // Call updatefile API
@@ -416,14 +575,14 @@ console.log('🚀 Script loaded successfully!');
           this.selectedFile!.content = this.code;
           this.originalContent = this.code;
           this.updateUnsavedChanges();
-          
+
           this.showNotification('File saved successfully!', 'success');
           console.log('File saved:', res);
         },
         error: (error) => {
           console.error('Save error:', error);
           this.showNotification('Failed to save file!', 'error');
-        }
+        },
       });
     } else {
       this.showNotification('No file selected to save!', 'error');
@@ -450,32 +609,42 @@ console.log('🚀 Script loaded successfully!');
   getLanguageFromExtension(filename: string): string {
     const ext = filename.split('.').pop()?.toLowerCase();
     const languageMap: { [key: string]: string } = {
-      'html': 'html', 'htm': 'html',
-      'css': 'css',
-      'js': 'javascript', 'jsx': 'javascript',
-      'ts': 'typescript', 'tsx': 'typescript',
-      'json': 'json',
-      'md': 'markdown',
-      'txt': 'plaintext'
+      html: 'html',
+      htm: 'html',
+      css: 'css',
+      js: 'javascript',
+      jsx: 'javascript',
+      ts: 'typescript',
+      tsx: 'typescript',
+      json: 'json',
+      md: 'markdown',
+      txt: 'plaintext',
     };
-    
+
     return languageMap[ext || ''] || 'plaintext';
   }
 
   getFileIcon(filename: string): string {
     const ext = filename.split('.').pop()?.toLowerCase();
     const icons: { [key: string]: string } = {
-      'html': '🌐', 'htm': '🌐', 'css': '🎨', 
-      'js': '📜', 'jsx': '⚛️', 'ts': '🔷', 'tsx': '⚛️',
-      'json': '📋', 'md': '📝', 'txt': '📄'
+      html: '🌐',
+      htm: '🌐',
+      css: '🎨',
+      js: '📜',
+      jsx: '⚛️',
+      ts: '🔷',
+      tsx: '⚛️',
+      json: '📋',
+      md: '📝',
+      txt: '📄',
     };
-    
+
     return icons[ext || ''] || '📄';
   }
 
   getDefaultContent(filename: string): string {
     const ext = filename.split('.').pop()?.toLowerCase();
-    
+
     switch (ext) {
       case 'html':
         return `<!DOCTYPE html>
@@ -695,7 +864,7 @@ main();`;
   private showNotification(message: string, type: 'success' | 'error' | 'warning' = 'success') {
     const notification = document.createElement('div');
     const bgColor = type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#ff9800';
-    
+
     notification.style.cssText = `
       position: fixed;
       top: 20px;
@@ -710,13 +879,315 @@ main();`;
       font-size: 14px;
     `;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       if (document.body.contains(notification)) {
         document.body.removeChild(notification);
       }
     }, 3000);
+  }
+
+  // Decode JWT token to get user info
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return { id: 'anonymous', username: 'Anonymous' };
+    }
+  }
+
+  private getCurrentUserInfo(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const userData = this.decodeToken(token);
+        this.currentUserId = userData.id;
+
+        // Better username extraction
+        this.currentUsername = userData.username || 'Anonymous';
+        console.log('🔐 User info loaded:', {
+          id: this.currentUserId,
+          username: this.currentUsername,
+        });
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        this.currentUserId = 'anonymous';
+        this.currentUsername = 'Anonymous';
+      }
+    } else {
+      console.warn('❌ No token found for user info');
+    }
+  }
+
+  private initializeCollaboration(): void {
+    const projectId = this.route.snapshot.paramMap.get('id');
+
+    if (projectId && this.currentUserId) {
+      console.log('🚀 Initializing collaboration for project:', projectId);
+      console.log('👤 Current user:', this.currentUsername, this.currentUserId);
+
+      if (this.socketService.getConnectionStatus()) {
+        this.socketService.joinProject(projectId, this.currentUserId, this.currentUsername);
+        this.setupCollaborationListeners();
+      } else {
+        console.log('⏳ Waiting for socket connection...');
+        // Retry after 1 second
+        setTimeout(() => {
+          this.initializeCollaboration();
+        }, 1000);
+      }
+    } else {
+      console.warn('❌ Cannot initialize collaboration - missing data:', {
+        projectId,
+        userId: this.currentUserId,
+        username: this.currentUsername,
+      });
+    }
+  }
+
+  private setupCollaborationListeners(): void {
+    // User joined/left events
+    this.socketService.onUserJoined.subscribe((user: User) => {
+      this.collaborators.set(user.userId, user);
+      this.updateCollaboratorsArray();
+      this.showNotification(`${user.username} joined the project`, 'success');
+    });
+
+    this.socketService.onUserLeft.subscribe((userId: string) => {
+      const user = this.collaborators.get(userId);
+      if (user) {
+        this.showNotification(`${user.username} left the project`, 'warning');
+        this.collaborators.delete(userId);
+        this.updateCollaboratorsArray();
+        this.removeRemoteCursor(userId);
+      }
+    });
+
+    // Cursor updates
+    this.socketService.onCursorUpdate.subscribe((data: CursorData) => {
+      console.log('🖱️ Received cursor update from:', data.username);
+      this.updateRemoteCursor(data);
+    });
+
+    // Content updates
+    this.socketService.onContentUpdate.subscribe((data: ContentUpdate) => {
+      console.log('📡 Content update received from:', data.userId);
+      if (data.userId === this.currentUserId) {
+        console.log('🔄 Skipping own update');
+        return;
+      }
+      if (this.selectedFile && data.fileId) {
+        // ✅ Convert both to string for reliable comparison
+        const localFileId = String(this.selectedFile._id);
+        const remoteFileId = String(data.fileId);
+
+        console.log('📁 File ID Comparison:', {
+          local: localFileId,
+          remote: remoteFileId,
+          match: localFileId === remoteFileId,
+        });
+
+        if (localFileId === remoteFileId) {
+          console.log('✅ Applying remote changes to current file');
+          this.applyRemoteContentUpdate(data);
+        } else {
+          console.log('❌ File ID mismatch - not applying changes');
+        }
+      } else {
+        console.log('⚠️ No selected file or missing fileId');
+      }
+    });
+  }
+
+  private updateCollaboratorsArray(): void {
+    this.collaboratorsArray = Array.from(this.collaborators.values());
+  }
+
+  private updateRemoteCursor(data: CursorData): void {
+    if (!this.editor || data.userId === this.currentUserId) return;
+    console.log('🖱️ Updating remote cursor:', data.username, data.cursor);
+
+    // Remove existing cursor
+    this.removeRemoteCursor(data.userId);
+
+    try {
+      // Convert cursor position (0-based to 1-based for Monaco)
+      const lineNumber = data.cursor.line + 1;
+      const column = data.cursor.column + 1;
+
+      console.log('📍 Cursor position:', { lineNumber, column });
+
+      // Add new cursor decoration
+      const decorations = this.editor.deltaDecorations(
+        [],
+        [
+          {
+            range: new monaco.Range(lineNumber, column, lineNumber, column),
+            options: {
+              className: `remote-cursor remote-cursor-${data.userId}`,
+              stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+              hoverMessage: { value: `**${data.username}**` },
+            },
+          },
+        ]
+      );
+
+      if (decorations && decorations.length > 0) {
+        this.remoteCursors.set(data.userId, {
+          decorationId: decorations[0],
+          username: data.username,
+          userId: data.userId,
+        });
+
+        console.log('✅ Cursor added for user:', data.username);
+      }
+    } catch (error) {
+      console.error('❌ Error adding cursor decoration:', error);
+    }
+
+    // try {
+    //   // Add new cursor decoration with proper position
+    //   const position = new monaco.Position(data.cursor.line + 1, data.cursor.column + 1);
+
+    //   const decorations = this.editor.deltaDecorations(
+    //     [],
+    //     [
+    //       {
+    //         range: new monaco.Range(
+    //           position.lineNumber,
+    //           position.column,
+    //           position.lineNumber,
+    //           position.column
+    //         ),
+    //         options: {
+    //           className: `remote-cursor remote-cursor-${data.userId}`,
+    //           stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+    //           hoverMessage: { value: `**${data.username}**` },
+    //         },
+    //       },
+    //     ]
+    //   );
+
+    //   if (decorations && decorations.length > 0) {
+    //     this.remoteCursors.set(data.userId, {
+    //       decorationId: decorations[0],
+    //       username: data.username,
+    //       userId: data.userId,
+    //     });
+
+    //     console.log('✅ Cursor added for user:', data.username);
+    //   }
+    // } catch (error) {
+    //   console.error('❌ Error adding cursor decoration:', error);
+    // }
+  }
+
+  private removeRemoteCursor(userId: string): void {
+    const cursorData = this.remoteCursors.get(userId);
+    if (cursorData && this.editor) {
+      this.editor.deltaDecorations([cursorData.decorationId], []);
+      this.remoteCursors.delete(userId);
+      console.log('🗑️ Removed cursor for user:', userId);
+    }
+  }
+
+  private applyRemoteContentUpdate(data: ContentUpdate): void {
+    if (!this.editor || !this.selectedFile) return;
+    console.log('🔄 Applying remote content update:', {
+      fromUser: data.userId,
+      fileId: data.fileId,
+      hasChanges: !!data.changes,
+      hasFullContent: !!data.fullContent,
+      currentContentLength: this.code.length,
+    });
+
+    this.isRemoteUpdate = true;
+
+    // Apply changes or full content
+    if (data.fullContent) {
+      this.editor.setValue(data.fullContent);
+      this.code = data.fullContent;
+    } else if (data.changes) {
+      // Implement change application logic based on your OT/CRDT strategy
+      this.applyChanges(data.changes);
+    }
+
+    this.updateUnsavedChanges();
+    this.isRemoteUpdate = false;
+  }
+
+  private applyChanges(changes: any): void {
+    if (!this.editor || !changes) return;
+
+    try {
+      // Simple implementation for now
+      if (changes.length > 0) {
+        const operations = changes.map((change: any) => ({
+          range: new monaco.Range(
+            change.range.startLineNumber,
+            change.range.startColumn,
+            change.range.endLineNumber,
+            change.range.endColumn
+          ),
+          text: change.text,
+          forceMoveMarkers: true,
+        }));
+
+        this.editor.executeEdits('remote', operations);
+      }
+    } catch (error) {
+      console.error('Error applying remote changes:', error);
+    }
+  }
+
+  getUserColor(userId: string): string {
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'];
+    const index =
+      userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    return colors[index];
+  }
+
+  private handleInviteToken(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const projectId = this.route.snapshot.paramMap.get('id');
+
+    if (token && projectId) {
+      if (this.currentUserId) {
+        // User already logged in - auto accept
+        this.acceptProjectInvite(token);
+      } else {
+        // User not logged in - store for later
+        localStorage.setItem('pendingInviteToken', token);
+        localStorage.setItem('pendingProjectId', projectId);
+
+        localStorage.setItem('redirectUrl', window.location.href);
+      }
+    }
+  }
+
+  private acceptProjectInvite(token: string): void {
+    const projectId = this.route.snapshot.paramMap.get('id');
+
+    if (projectId && token) {
+      this.projectService.acceptInvite(projectId, token).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            this.showNotification('Successfully joined project!', 'success');
+            // Remove token from URL
+            window.history.replaceState({}, '', window.location.pathname);
+          } else {
+            this.showNotification(res.message || 'Failed to join project', 'error');
+          }
+        },
+        error: () => {
+          this.showNotification('Error joining project', 'error');
+        },
+      });
+    }
   }
 }

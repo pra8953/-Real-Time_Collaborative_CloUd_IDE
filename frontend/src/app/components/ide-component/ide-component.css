@@ -81,8 +81,13 @@ button:active {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Welcome Screen */
@@ -95,17 +100,17 @@ button:active {
   .editor-container {
     flex-direction: column;
   }
-  
+
   .w-60 {
     width: 100%;
     height: 300px;
   }
-  
+
   .editor-actions {
     justify-content: flex-start;
     width: 100%;
   }
-  
+
   .tabs {
     width: 100%;
     margin-bottom: 0.5rem;
@@ -114,14 +119,15 @@ button:active {
 
 /* Loading States */
 .code-editor:empty::before {
-  content: "Loading editor...";
+  content: 'Loading editor...';
   color: #888;
   padding: 20px;
   display: block;
 }
 
 /* Focus Styles */
-input:focus, button:focus {
+input:focus,
+button:focus {
   outline: 2px solid var(--editor-primary);
   outline-offset: 2px;
 }
@@ -132,8 +138,12 @@ input:focus, button:focus {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* File Icons */
@@ -158,7 +168,9 @@ input:focus, button:focus {
 }
 
 /* Smooth transitions for all interactive elements */
-button, .file-item, input {
+button,
+.file-item,
+input {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -176,11 +188,11 @@ button, .file-item, input {
   .text-6xl {
     font-size: 3rem;
   }
-  
+
   .text-2xl {
     font-size: 1.5rem;
   }
-  
+
   .p-8 {
     padding: 1.5rem;
   }
@@ -243,4 +255,245 @@ button, .file-item, input {
 
 .monaco-editor .view-lines {
   width: 100% !important;
+}
+
+/* ========== UPDATED CURSOR STYLES ========== */
+
+/* Remote cursor styles - MONACO COMPATIBLE */
+.monaco-editor .view-overlays .cdr.remote-cursor {
+  border-left: 3px solid !important;
+  margin-left: -1px;
+  background: transparent !important;
+  animation: cursor-blink 1.2s infinite;
+  position: relative;
+  z-index: 1000;
+  pointer-events: none;
+  height: 18px !important;
+  opacity: 0.9;
+}
+
+/* Specific user cursor colors */
+.monaco-editor .view-overlays .cdr.remote-cursor-69145046e3a1e4131bba0bb7 {
+  border-left-color: #ff6b6b !important;
+  box-shadow: 0 0 3px rgba(255, 107, 107, 0.5);
+}
+
+.monaco-editor .view-overlays .cdr.remote-cursor-691ea253d0711498c2b3032c {
+  border-left-color: #4ecdc4 !important;
+  box-shadow: 0 0 3px rgba(78, 205, 196, 0.5);
+}
+
+/* Cursor blink animation */
+@keyframes cursor-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0.4;
+  }
+}
+
+/* Username tooltip for cursors */
+.remote-cursor-tooltip {
+  position: absolute;
+  top: -22px;
+  left: -2px;
+  background: #2d3748;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1001;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border: 1px solid #4a5568;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.monaco-editor .view-overlays .cdr.remote-cursor:hover .remote-cursor-tooltip {
+  opacity: 1;
+}
+
+/* Alternative cursor styles using glyph margin */
+.monaco-editor .glyph-margin .remote-cursor-glyph {
+  background: transparent !important;
+  position: relative;
+}
+
+.monaco-editor .glyph-margin .remote-cursor-glyph::before {
+  content: '▶';
+  color: inherit;
+  font-size: 10px;
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  font-weight: bold;
+}
+
+.monaco-editor .glyph-margin .remote-cursor-glyph-69145046e3a1e4131bba0bb7::before {
+  color: #ff6b6b !important;
+  text-shadow: 0 0 2px rgba(255, 107, 107, 0.7);
+}
+
+.monaco-editor .glyph-margin .remote-cursor-glyph-691ea253d0711498c2b3032c::before {
+  color: #4ecdc4 !important;
+  text-shadow: 0 0 2px rgba(78, 205, 196, 0.7);
+}
+
+/* Line decoration approach */
+.monaco-editor .view-overlays .remote-cursor-line {
+  border-left: 3px solid;
+  margin-left: -1px;
+  background: transparent !important;
+  animation: cursor-blink 1.2s infinite;
+  position: relative;
+}
+
+.monaco-editor .view-overlays .remote-cursor-line-69145046e3a1e4131bba0bb7 {
+  border-left-color: #ff6b6b !important;
+  box-shadow: 0 0 4px rgba(255, 107, 107, 0.6);
+}
+
+.monaco-editor .view-overlays .remote-cursor-line-691ea253d0711498c2b3032c {
+  border-left-color: #4ecdc4 !important;
+  box-shadow: 0 0 4px rgba(78, 205, 196, 0.6);
+}
+
+/* Inline cursor styling */
+.monaco-editor .view-overlays .remote-cursor-inline {
+  border-left: 3px solid !important;
+  margin-left: -1px;
+  background: transparent !important;
+  animation: cursor-blink 1.2s infinite;
+}
+
+.monaco-editor .view-overlays .remote-cursor-inline-69145046e3a1e4131bba0bb7 {
+  border-left-color: #ff6b6b !important;
+}
+
+.monaco-editor .view-overlays .remote-cursor-inline-691ea253d0711498c2b3032c {
+  border-left-color: #4ecdc4 !important;
+}
+
+/* After content cursor styling */
+.monaco-editor .view-overlays .remote-cursor-after::after {
+  content: '|';
+  color: inherit;
+  font-weight: bold;
+  animation: cursor-blink 1.2s infinite;
+  position: absolute;
+  left: -1px;
+}
+
+/* Ensure cursor decorations are visible */
+.monaco-editor .view-zones .remote-cursor-zone {
+  background: rgba(255, 107, 107, 0.1) !important;
+}
+
+/* Monaco editor specific overrides */
+.monaco-editor .cursor {
+  z-index: 100 !important;
+}
+
+.monaco-editor .remote-cursor {
+  z-index: 99 !important;
+}
+
+/* Make sure Monaco doesn't override our styles */
+.monaco-editor .view-overlays .cdr {
+  background: transparent !important;
+}
+
+/* Collaborators panel */
+.collaborators-panel {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 12px;
+  border-radius: 8px;
+  z-index: 1000;
+  max-width: 220px;
+  border: 1px solid #4a5568;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.collaborators-panel .text-xs {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a0aec0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.collaborator-item {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.collaborator-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.collaborator-item .ml-2 {
+  margin-left: 6px;
+  font-size: 10px;
+  animation: pulse 2s infinite;
+}
+
+/* Enhanced visual feedback */
+.monaco-editor .remote-cursor-highlight {
+  background: rgba(255, 107, 107, 0.15) !important;
+  border-radius: 2px;
+}
+
+/* Selection styling for remote users */
+.monaco-editor .view-overlays .remote-selection {
+  background: rgba(78, 205, 196, 0.2) !important;
+  border: 1px solid rgba(78, 205, 196, 0.5) !important;
+}
+
+/* Smooth transitions for cursor movements */
+.monaco-editor .view-overlays .cdr {
+  transition: all 0.1s ease-out;
+}
+
+/* Focus states for better visibility */
+.monaco-editor .view-overlays .cdr.remote-cursor:focus {
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .monaco-editor .view-overlays .cdr.remote-cursor {
+    border-left-width: 4px !important;
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* Print styles - hide cursors when printing */
+@media print {
+  .monaco-editor .remote-cursor,
+  .monaco-editor .remote-cursor-glyph,
+  .monaco-editor .remote-cursor-line,
+  .collaborators-panel {
+    display: none !important;
+  }
 }

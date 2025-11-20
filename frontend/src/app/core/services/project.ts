@@ -24,4 +24,12 @@ export class ProjectService {
   updateProject(id: string, data: any): Observable<any> {
     return this.http.put(`${this.api}/project/update-project/${id}`, data);
   }
+
+  generateInviteLink(projectId: string, permission: string): Observable<any> {
+    return this.http.post(`${this.api}/project/generate-invite-link/${projectId}`, { permission });
+  }
+
+  acceptInvite(projectId: string, token: string): Observable<any> {
+    return this.http.post(`${this.api}/project/accept-invite/${projectId}/${token}`, {});
+  }
 }

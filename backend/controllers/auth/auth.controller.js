@@ -22,9 +22,13 @@ const signup = async (req, res) => {
       username,
     });
     await newUser.save();
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      { id: newUser._id, username: newUser.username },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h",
+      }
+    );
 
     res.status(201).json({
       success: true,
@@ -59,9 +63,13 @@ const login = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: userExists._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      { id: userExists._id, username: userExists.username },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h",
+      }
+    );
     res.status(200).json({
       success: true,
       message: "login successfully!",

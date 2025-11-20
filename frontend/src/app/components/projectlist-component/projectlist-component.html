@@ -1,15 +1,20 @@
 <!-- Project List Section -->
-<div class="project-list-container p-4 md:p-6 w-full bg-gray-50 dark:bg-gray-800 min-h-screen transition-all duration-300">
+<div
+  class="project-list-container p-4 md:p-6 w-full bg-gray-50 dark:bg-gray-800 min-h-screen transition-all duration-300"
+>
   <!-- Header -->
   <div class="mb-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="flex-1">
         <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-1">My Projects</h1>
-        <p class="text-gray-600 dark:text-gray-400 text-sm">Manage and organize your development projects</p>
+        <p class="text-gray-600 dark:text-gray-400 text-sm">
+          Manage and organize your development projects
+        </p>
       </div>
-      <button 
+      <button
         [routerLink]="['/dashboard/create-project']"
-        class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm whitespace-nowrap w-full sm:w-auto">
+        class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm whitespace-nowrap w-full sm:w-auto"
+      >
         <i class="fas fa-plus mr-2"></i>
         Create New Project
       </button>
@@ -17,25 +22,32 @@
   </div>
 
   <!-- Welcome Message -->
-  <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 mb-6">
+  <div
+    class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 mb-6"
+  >
     <div class="flex flex-col md:flex-row md:items-start gap-4">
       <div class="shrink-0">
         <i class="fas fa-rocket text-2xl text-pink-500"></i>
       </div>
       <div class="flex-1">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Welcome to Your Workspace! 🚀</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          Welcome to Your Workspace! 🚀
+        </h3>
         <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed">
-          Start collaborating on your projects. Create new projects, invite team members, and track your progress in real-time.
+          Start collaborating on your projects. Create new projects, invite team members, and track
+          your progress in real-time.
         </p>
         <div class="flex flex-col sm:flex-row gap-3">
-          <button 
+          <button
             routerLink="/dashboard/create-project"
-            class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
+            class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm"
+          >
             <i class="fas fa-plus mr-2"></i>
             Create New Project
           </button>
-          <button 
-            class="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium px-4 py-2 rounded-lg transition-all duration-200 text-sm">
+          <button
+            class="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium px-4 py-2 rounded-lg transition-all duration-200 text-sm"
+          >
             <i class="fas fa-book mr-2"></i>
             View Documentation
           </button>
@@ -47,34 +59,44 @@
   <!-- Projects List -->
   <div class="space-y-4">
     <!-- Project Card -->
-    <div 
-      *ngFor="let project of projects" 
-      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer group">
-      
+    <div
+      *ngFor="let project of projects"
+      class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer group"
+    >
       <div class="p-4 md:p-6">
         <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <!-- Left Content -->
           <div class="flex items-start gap-4 flex-1">
             <!-- Project Icon -->
-            <div class="w-8 h-8 bg-linear-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0">
+            <div
+              class="w-8 h-8 bg-linear-to-r from-pink-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0"
+            >
               <i class="fas fa-folder text-white text-lg"></i>
             </div>
-            
+
             <!-- Project Details -->
             <div class="flex-1 min-w-0">
               <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-pink-500 transition-colors duration-200 truncate">
+                <h3
+                  class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-pink-500 transition-colors duration-200 truncate"
+                >
                   {{ project.name }}
                 </h3>
-                <span class="px-3 py-1 rounded-full text-xs font-medium w-fit" [ngClass]="{
-                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': project.status === 'active',
-                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': project.status === 'draft',
-                  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200': project.status === 'archived'
-                }">
+                <span
+                  class="px-3 py-1 rounded-full text-xs font-medium w-fit"
+                  [ngClass]="{
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200':
+                      project.status === 'active',
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200':
+                      project.status === 'draft',
+                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200':
+                      project.status === 'archived'
+                  }"
+                >
                   {{ project.status | uppercase }}
                 </span>
               </div>
-              
+
               <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed line-clamp-2">
                 {{ project.description }}
               </p>
@@ -90,7 +112,9 @@
                 </div>
 
                 <!-- Timestamps -->
-                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div
+                  class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400"
+                >
                   <span>Updated {{ getRelativeTime(project.updatedAt) }}</span>
                   <span>Created {{ formatDate(project.createdAt) }}</span>
                 </div>
@@ -114,7 +138,9 @@
                     <i class="fas fa-clock text-pink-500 w-4"></i>
                     <div>
                       <div class="text-xs text-gray-500 dark:text-gray-400">Updated</div>
-                      <div class="font-medium text-xs">{{ getRelativeTime(project.updatedAt) }}</div>
+                      <div class="font-medium text-xs">
+                        {{ getRelativeTime(project.updatedAt) }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -125,14 +151,16 @@
                     <i class="fas fa-users text-pink-500 w-4"></i>
                     <div class="flex items-center gap-2">
                       <div class="flex -space-x-1">
-                        <div 
-                          *ngFor="let collaborator of project.collaborators.slice(0, 3)" 
-                          class="w-6 h-6 rounded-full bg-linear-to-r from-pink-500 to-purple-600 border-2 border-white dark:border-gray-900 flex items-center justify-center text-white text-xs font-bold">
+                        <div
+                          *ngFor="let collaborator of project.collaborators.slice(0, 3)"
+                          class="w-6 h-6 rounded-full bg-linear-to-r from-pink-500 to-purple-600 border-2 border-white dark:border-gray-900 flex items-center justify-center text-white text-xs font-bold"
+                        >
                           {{ collaborator.charAt(0) }}
                         </div>
-                        <div 
+                        <div
                           *ngIf="project.collaborators.length > 3"
-                          class="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 border-2 border-white dark:border-gray-900 flex items-center justify-center text-gray-600 dark:text-gray-400 text-xs">
+                          class="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 border-2 border-white dark:border-gray-900 flex items-center justify-center text-gray-600 dark:text-gray-400 text-xs"
+                        >
                           +{{ project.collaborators.length - 3 }}
                         </div>
                       </div>
@@ -145,42 +173,51 @@
           </div>
 
           <!-- Right Actions -->
-          <div class="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start gap-2 lg:gap-2 lg:ml-4 dropdown-container">
+          <div
+            class="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start gap-2 lg:gap-2 lg:ml-4 dropdown-container"
+          >
             <!-- Dropdown Menu -->
             <div class="relative">
-              <button 
+              <button
                 (click)="toggleDropdown(project.id, $event)"
-                class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 order-2 lg:order-1 dropdown-container">
+                class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 order-2 lg:order-1 dropdown-container"
+              >
                 <i class="fas fa-ellipsis-v"></i>
               </button>
-              
+
               <!-- Dropdown Content -->
-              <div 
+              <div
                 *ngIf="showDropdown === project.id"
-                class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-10 dropdown-container">
+                class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-10 dropdown-container"
+              >
                 <div class="py-1">
                   <!-- Status Change Options -->
-                  <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+                  <div
+                    class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700"
+                  >
                     Change Status
                   </div>
-                  
-                  <button 
+
+                  <button
                     (click)="changeStatus(project, 'draft', $event)"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3"
+                  >
                     <i class="fas fa-edit w-4 text-yellow-500"></i>
                     <span>Mark as Draft</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     (click)="changeStatus(project, 'archived', $event)"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3"
+                  >
                     <i class="fas fa-archive w-4 text-gray-500"></i>
                     <span>Move to Archived</span>
                   </button>
 
-                  <button 
+                  <button
                     (click)="changeStatus(project, 'active', $event)"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3"
+                  >
                     <i class="fas fa-play-circle w-4 text-green-500"></i>
                     <span>Set as Active</span>
                   </button>
@@ -189,16 +226,18 @@
                   <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
 
                   <!-- Other Actions -->
-                  <button 
+                  <button
                     (click)="editProject(project, $event)"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3"
+                  >
                     <i class="fas fa-edit w-4 text-blue-500"></i>
                     <span>Edit Project</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     (click)="addCollaborator(project, $event)"
-                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3">
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3"
+                  >
                     <i class="fas fa-user-plus w-4 text-green-500"></i>
                     <span>Add Collaborator</span>
                   </button>
@@ -206,9 +245,10 @@
               </div>
             </div>
 
-            <button 
-              routerLink="/dashboard/project_ide/{{project.id}}"
-              class="px-4 py-2 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm order-1 lg:order-2 whitespace-nowrap">
+            <button
+              routerLink="/dashboard/project_ide/{{ project.id }}"
+              class="px-4 py-2 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm order-1 lg:order-2 whitespace-nowrap"
+            >
               <i class="fas fa-arrow-right mr-1"></i>
               Open
             </button>
@@ -219,19 +259,85 @@
   </div>
 
   <!-- Empty State -->
-  <div 
-    *ngIf="projects.length === 0"
-    class="text-center py-12">
+  <div *ngIf="projects.length === 0" class="text-center py-12">
     <i class="fas fa-folder-open text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No projects yet</h3>
     <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 max-w-md mx-auto">
-      It looks like you haven't created any projects yet. Start your journey by creating your first project!
+      It looks like you haven't created any projects yet. Start your journey by creating your first
+      project!
     </p>
-    <button 
+    <button
       routerLink="/dashboard/create-project"
-      class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm">
+      class="bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg text-sm"
+    >
       <i class="fas fa-plus mr-2"></i>
       Create Your First Project
     </button>
+  </div>
+
+  <!-- ADD COLLABORATOR MODAL -->
+  <div
+    *ngIf="showCollaboratorModal"
+    class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+  >
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg w-96">
+      <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add Collaborator</h2>
+
+      <!-- Permissions -->
+      <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">
+        Permissions:
+      </label>
+
+      <div class="space-y-2 mb-4">
+        <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <input type="radio" name="permission" value="view" [(ngModel)]="selectedPermission" />
+          Only Read / View
+        </label>
+
+        <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <input type="radio" name="permission" value="edit" [(ngModel)]="selectedPermission" />
+          Can View & Edit
+        </label>
+      </div>
+
+      <!-- Generate Link Section -->
+      <div *ngIf="generatedLink" class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Share Link:
+        </label>
+
+        <div class="flex items-center gap-2">
+          <input
+            type="text"
+            class="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-gray-200"
+            [value]="generatedLink"
+            readonly
+          />
+
+          <button (click)="copyLink()" class="px-3 py-2 bg-blue-600 text-white rounded-lg">
+            Copy
+          </button>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end gap-3 mt-4">
+        <button
+          (click)="closeCollaboratorModal()"
+          class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+          (click)="generateInvite()"
+          [disabled]="isGeneratingLink"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg disabled:bg-gray-400"
+        >
+          <span *ngIf="!isGeneratingLink">Generate Link</span>
+          <span *ngIf="isGeneratingLink">Generating...</span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>

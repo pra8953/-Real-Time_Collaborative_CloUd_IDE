@@ -1,7 +1,8 @@
 import { CommonModule, NgIf } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
-import { RouterLink } from "@angular/router";
+import { RouterLink } from '@angular/router';
 import { ProjectService } from '../../core/services/project';
+import { FormsModule } from '@angular/forms';
 
 interface Project {
   id: string;
@@ -19,13 +20,18 @@ interface Project {
 
 @Component({
   selector: 'app-projectlist-component',
-  imports: [CommonModule, RouterLink,NgIf],
+  imports: [CommonModule, RouterLink, NgIf, FormsModule],
   templateUrl: './projectlist-component.html',
   styleUrl: './projectlist-component.css',
 })
 export class ProjectlistComponent implements OnInit {
-
   constructor(private projectService: ProjectService) {}
+
+  showCollaboratorModal: boolean = false;
+  selectedPermission: string = 'view';
+  currentProjectId: string | null = null;
+  generatedLink: string | null = null;
+  isGeneratingLink: boolean = false;
 
   projects: Project[] = [];
   isLoading: boolean = true;
@@ -52,7 +58,7 @@ export class ProjectlistComponent implements OnInit {
 
   private loadProjects() {
     this.isLoading = true;
-    
+
     this.projectService.getProjects().subscribe({
       next: (result: any) => {
         if (result.success) {
@@ -67,7 +73,7 @@ export class ProjectlistComponent implements OnInit {
         console.error('Error loading projects:', error);
         this.projects = [];
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -76,18 +82,26 @@ export class ProjectlistComponent implements OnInit {
       return [];
     }
 
-    return apiData.map(project => {
+    return apiData.map((project) => {
       // Map API status number to string status
       const statusMap: { [key: number]: 'active' | 'draft' | 'archived' } = {
         1: 'active',
-        2: 'draft', 
-        3: 'archived'
+        2: 'draft',
+        3: 'archived',
       };
 
-      const collaborators = project.collaborators && project.collaborators.length > 0 
-        ? project.collaborators 
-        : ['You'];
-      
+      let collaborators = ['You']; // Default
+
+      if (project.collaborators && project.collaborators.length > 0) {
+        // Extract usernames from collaborator objects
+        collaborators = project.collaborators.map((collab: any) => {
+          if (collab.userId && typeof collab.userId === 'object') {
+            return collab.userId.name || collab.userId.email || 'Collaborator';
+          }
+          return 'Collaborator';
+        });
+      }
+
       const progress = this.calculateProgress(project);
 
       return {
@@ -101,28 +115,28 @@ export class ProjectlistComponent implements OnInit {
         collaborators: collaborators,
         progress: progress,
         files: project.files || [],
-        owner: project.owner || ''
+        owner: project.owner || '',
       };
     });
   }
 
   private calculateProgress(project: any): number {
     let progress = 0;
-    
+
     // Base progress on status
     if (project.status === 1) progress += 40; // active
     else if (project.status === 2) progress += 20; // draft
-    
+
     // Progress based on description length (more detailed = more complete)
     if (project.description && project.description.length > 50) progress += 20;
     else if (project.description && project.description.length > 20) progress += 10;
-    
+
     // Progress based on collaborators
     if (project.collaborators && project.collaborators.length > 1) progress += 20;
-    
+
     // Progress based on files
     if (project.files && project.files.length > 0) progress += 20;
-    
+
     return Math.min(progress, 100);
   }
 
@@ -145,12 +159,10 @@ export class ProjectlistComponent implements OnInit {
   changeStatus(project: Project, newStatus: 'draft' | 'archived' | 'active', event: Event) {
     event.stopPropagation();
     console.log(`Changing project ${project.name} status to:`, newStatus);
-    
+
     // Update local project status
     project.status = newStatus;
-    
-   
-    
+
     this.closeDropdown();
   }
 
@@ -165,23 +177,61 @@ export class ProjectlistComponent implements OnInit {
   // Add collaborator
   addCollaborator(project: Project, event: Event) {
     event.stopPropagation();
-    console.log('Adding collaborator to project:', project.name);
-    // Implement add collaborator logic - open modal or form
     this.closeDropdown();
+
+    this.currentProjectId = project.id;
+    this.selectedPermission = 'view';
+    this.generatedLink = null;
+    this.showCollaboratorModal = true;
+  }
+
+  closeCollaboratorModal() {
+    this.showCollaboratorModal = false;
+  }
+
+  generateInvite() {
+    if (!this.currentProjectId) return;
+
+    this.isGeneratingLink = true;
+    this.generatedLink = null;
+
+    this.projectService
+      .generateInviteLink(this.currentProjectId, this.selectedPermission)
+      .subscribe({
+        next: (res: any) => {
+          this.isGeneratingLink = false;
+          if (res.success) {
+            this.generatedLink = res.inviteLink;
+          } else {
+            alert('Failed to generate link: ' + (res.message || 'Unknown error'));
+          }
+        },
+        error: (err) => {
+          this.isGeneratingLink = false;
+          console.error('Generate link error:', err);
+          alert('Error generating link. Please try again.');
+        },
+      });
+  }
+
+  copyLink() {
+    if (!this.generatedLink) return;
+    navigator.clipboard.writeText(this.generatedLink);
+    alert('Link copied!');
   }
 
   formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
 
   getRelativeTime(date: Date): string {
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) {
       return 'Just now';
     } else if (diffInHours < 24) {
@@ -195,10 +245,14 @@ export class ProjectlistComponent implements OnInit {
 
   getStatusIcon(status: string): string {
     switch (status) {
-      case 'active': return 'fas fa-play-circle';
-      case 'draft': return 'fas fa-edit';
-      case 'archived': return 'fas fa-archive';
-      default: return 'fas fa-folder';
+      case 'active':
+        return 'fas fa-play-circle';
+      case 'draft':
+        return 'fas fa-edit';
+      case 'archived':
+        return 'fas fa-archive';
+      default:
+        return 'fas fa-folder';
     }
   }
 

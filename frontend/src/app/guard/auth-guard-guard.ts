@@ -8,6 +8,9 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (token && !jwt.isTokenExpired(token)) {
     return true;
   } else {
+    const redirectUrl = state.url;
+    localStorage.setItem('redirectUrl', redirectUrl);
+
     router.navigateByUrl('/login');
     return false;
   }

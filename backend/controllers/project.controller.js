@@ -1,5 +1,6 @@
 const projectModel = require("../models/projectModel");
 const userModel = require("../models/userModel");
+const crypto = require("crypto");
 
 async function addProject(req, res) {
   try {
@@ -151,4 +152,111 @@ async function updateProject(req, res) {
   }
 }
 
-module.exports = { addProject, getProjects, getProject, updateProject };
+async function generateInviteLink(req, res) {
+  try {
+    const userId = req.Id;
+    const { projectId } = req.params;
+    const { permission } = req.body;
+
+    if (!permission || !["view", "edit"].includes(permission)) {
+      return res.status(400).json({
+        success: false,
+        message: "Permission must be either 'view' or 'edit'",
+      });
+    }
+
+    // Check owner
+    const project = await projectModel.findOne({
+      _id: projectId,
+      owner: userId,
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found or you are not the owner",
+      });
+    }
+
+    // Generate token
+    const token = crypto.randomBytes(32).toString("hex");
+
+    // Store token + permission
+    project.inviteToken = token;
+    project.invitePermission = permission; // <<---- NEW FIELD
+    project.inviteTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await project.save();
+
+    const inviteLink = `${process.env.FRONTEND_URL}/dashboard/project_ide/${projectId}?token=${token}`;
+
+    return res.status(200).json({
+      success: true,
+      inviteLink,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}
+
+async function acceptInvite(req, res) {
+  try {
+    const userId = req.Id;
+    const { projectId, token } = req.params;
+
+    const project = await projectModel.findById(projectId);
+
+    if (!project) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Project not found" });
+    }
+
+    if (project.inviteToken !== token) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid invite link" });
+    }
+
+    if (project.inviteTokenExpiry < Date.now()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invite link expired" });
+    }
+
+    const already = project.collaborators.some(
+      (c) => c.userId.toString() === userId
+    );
+
+    if (!already) {
+      project.collaborators.push({
+        userId,
+        permission: project.invitePermission || "view",
+      });
+
+      await project.save();
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Successfully joined project",
+      projectId,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+module.exports = {
+  addProject,
+  getProjects,
+  getProject,
+  updateProject,
+  generateInviteLink,
+  acceptInvite,
+};

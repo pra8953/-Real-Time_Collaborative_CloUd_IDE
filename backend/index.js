@@ -6,7 +6,20 @@ const session = require("express-session");
 const dbConnect = require("./config/db");
 const indexRoute = require("./routes/index.routes");
 
+const http = require("http");
+const { Server } = require("socket.io");
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+  transports: ["websocket", "polling"],
+});
+
 const PORT = process.env.PORT || 3600;
 
 // db connection
@@ -34,10 +47,14 @@ app.use(passport.session());
 // routing
 app.use("/api", indexRoute);
 
+// socket.io logic
+require("./sockets/socketHandler")(io);
+
 app.get("/", (req, res) => {
   res.send("Backend is live!!");
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
+  console.log(`Socket.io running on port ${PORT}`);
 });
