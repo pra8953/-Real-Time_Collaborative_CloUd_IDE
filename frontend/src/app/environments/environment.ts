@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  baseUrl: 'http://localhost:3600',
-  api: 'http://localhost:3600/api',
+  baseUrl: 'https://realtimeide-qjij.onrender.com',
+  api: 'https://realtimeide-qjij.onrender.com/api',
 };
