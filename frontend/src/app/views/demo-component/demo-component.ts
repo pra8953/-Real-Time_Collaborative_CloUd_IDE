@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NavbarComponent } from '../../components/navbar-component/navbar-component';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-demo-component',
-  imports: [NavbarComponent],
+  imports: [NavbarComponent,CommonModule],
   templateUrl: './demo-component.html',
   styleUrl: './demo-component.css',
 })
