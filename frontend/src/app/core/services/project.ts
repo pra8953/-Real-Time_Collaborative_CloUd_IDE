@@ -26,7 +26,9 @@ export class ProjectService {
   }
 
   generateInviteLink(projectId: string, permission: string): Observable<any> {
-    return this.http.post(`${this.api}/project/generate-invite-link/${projectId}`, { permission });
+    return this.http.post(`${this.api}/project/generate-invite-link/${projectId}`, {
+      permission: permission,
+    });
   }
 
   acceptInvite(projectId: string, token: string): Observable<any> {
